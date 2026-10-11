@@ -1,0 +1,26 @@
+{
+  "type": "slides",
+  "data": {
+    "cells": [
+      {},
+      {},
+      {},
+      {},
+      {
+        "showCode": true
+      },
+      {},
+      {
+        "showCode": false
+      },
+      {
+        "showCode": true
+      },
+      {},
+      {},
+      {},
+      {}
+    ],
+    "deck": {}
+  }
+}
