@@ -20,12 +20,12 @@
     },
     {
       "id": "MJUe",
-      "code_hash": "86fbf190006fb2bcf2a40d658fe094f4",
+      "code_hash": "56d0cbccba2033b2846aadf678b54830",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">In this notebook we prepare the data for further experiments. The data that we have is raw 1 minute OHLCV data obtained using Alpaca. When fetching, we tried to get as much data as possible for the given assets, without getting into the COVID-19 range, as this period was very unpredictable. It might be interesting to include it later, to check how our methods work across market regimes.\nThroughout the notebook we try to consistently use the following conventions:</span>\n<ul>\n<li>timestamps represent the beggining of each bar and are converted into NYC timezone</li>\n<li>we restrict the data to only cover regular NYSE sessions</li>\n<li>overnight returns are not included or analyzed</li>\n</ul>\n<span class=\"paragraph\">The goal is to first inspect the quality of raw data and then process data wherever needed, in order to obtain as much data as possible for future forecasting and validation. We put extra efforts into retrieving missing data for target variables as the available information for those assets is already severly limited. </span>\n<span class=\"paragraph\">Most of the source code used in this notebook comes from <code>preprocessing.py</code> file as the notebook is supposed to only present and highlight the decision making process and key results regarding data preprocessing. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">In this notebook we prepare the data for further experiments. The data that we have is raw 1 minute OHLCV data obtained using Alpaca. When fetching, we tried to get as much data as possible for the given assets, without getting into the COVID-19 range, as this period was very unpredictable. It might be interesting to include it later, to check how our methods work across market regimes.\nThroughout the notebook we try to consistently use the following conventions:</span>\n<ul>\n<li>timestamps represent the beggining of each bar and are converted into NYC timezone</li>\n<li>we restrict the data to only cover regular NYSE sessions</li>\n<li>overnight returns are not included or analyzed</li>\n</ul>\n<span class=\"paragraph\">The goal is to first inspect the quality of raw data and then process data wherever needed, in order to obtain as much data as possible for future forecasting and validation. We put extra efforts into retrieving missing data for target variables as the available information for those assets is already severly limited.</span>\n<span class=\"paragraph\">Most of the source code used in this notebook comes from <code>preprocessing.py</code> file as the notebook is supposed to only present and highlight the decision making process and key results regarding data preprocessing.</span>\n<span class=\"paragraph\">The whole run of the notebook shouldn't take more than a minute, so don't be afraid to run it if needed.</span></span>"
           }
         }
       ],
@@ -33,7 +33,7 @@
     },
     {
       "id": "vblA",
-      "code_hash": "abc356b3de747fdde896b1c9e2a13464",
+      "code_hash": "e2805f8f9ccfbcfb4fbb436e03fe1ccd",
       "outputs": [
         {
           "type": "data",
@@ -45,7 +45,7 @@
       "console": []
     },
     {
-      "id": "JwfW",
+      "id": "bkHC",
       "code_hash": "f95cc8c791cb0f8e17d254b1e93a093c",
       "outputs": [
         {
@@ -58,7 +58,7 @@
       "console": []
     },
     {
-      "id": "bkHC",
+      "id": "lEQa",
       "code_hash": "7aef2dd6944a3af44dda65870c571d12",
       "outputs": [
         {
@@ -71,7 +71,7 @@
       "console": []
     },
     {
-      "id": "HDvZ",
+      "id": "PKri",
       "code_hash": "2220d209a8c33568b8cd7055a5f7131a",
       "outputs": [
         {
@@ -84,20 +84,20 @@
       "console": []
     },
     {
-      "id": "kkpr",
-      "code_hash": "470aeaeb81058c0df1e557bf893ca526",
+      "id": "Xref",
+      "code_hash": "5b1a5bf4e241ffd58efd5a5fcdda5691",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">First, the definition of the universe of stocks we will be working with.</span>\n<span class=\"paragraph\">As the project required, we selected 12 mature stocks with rich history from 6 different sectors to serve as our source for transfer:</span>\n<table>\n<thead>\n<tr>\n<th>Sector</th>\n<th>Source stocks</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Information Technology</td>\n<td>MSFT, CSCO</td>\n</tr>\n<tr>\n<td>Consumer Discretionary</td>\n<td>AMZN, EBAY</td>\n</tr>\n<tr>\n<td>Consumer Staples</td>\n<td>WMT, COST</td>\n</tr>\n<tr>\n<td>Financials</td>\n<td>JPM, BAC</td>\n</tr>\n<tr>\n<td>Health Care</td>\n<td>JNJ, PFE</td>\n</tr>\n<tr>\n<td>Energy</td>\n<td>XOM, CVX</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">For all of the above assets we fetch data from <strong>January 1st, 2016</strong> to <strong>February 21st, 2020</strong>, both ends inclusive. The choice of this range is not random. Our data provider - Alpaca - only offers data up to 2016, so we go back in history as much as we can. The right boundary is related to the aforementioned problem with COVID-19 pandemic, as it's one of the latest dates before extreme changes in the markets. </span>\n<span class=\"paragraph\">Additionally, we've chosen 2 target assets: <strong>CHWY</strong> and <strong>CRWD</strong>. Their choice was also dependent on the available data. Their IPO's happened respectively at <strong>June 14th, 2019</strong> and <strong>June 12th, 2019</strong>, which means that with some luck we should be able to obtain around 150 sessions of data for each of those assets, a number sufficient for testing the behavior of models depending on target dataset size. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">First, the definition of the universe of stocks we will be working with.</span>\n<span class=\"paragraph\">As the project required, we selected 12 mature stocks with rich history from 6 different sectors to serve as our source for transfer:</span>\n<table>\n<thead>\n<tr>\n<th>Sector</th>\n<th>Source stocks</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Information Technology</td>\n<td>MSFT, CSCO</td>\n</tr>\n<tr>\n<td>Consumer Discretionary</td>\n<td>AMZN, EBAY</td>\n</tr>\n<tr>\n<td>Consumer Staples</td>\n<td>WMT, COST</td>\n</tr>\n<tr>\n<td>Financials</td>\n<td>JPM, BAC</td>\n</tr>\n<tr>\n<td>Health Care</td>\n<td>JNJ, PFE</td>\n</tr>\n<tr>\n<td>Energy</td>\n<td>XOM, CVX</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">For all of the above assets we fetch data from <strong>January 1st, 2016</strong> to <strong>February 21st, 2020</strong>, both ends inclusive. The choice of this range is not random. Our data provider - Alpaca - only offers data up to 2016, so we go back in history as much as we can. The right boundary is related to the aforementioned problem with COVID-19 pandemic, as it's one of the latest dates before extreme changes in the markets. </span>\n<span class=\"paragraph\">Additionally, we've chosen 2 target assets: <strong>CHWY</strong> and <strong>CRWD</strong>. Their choice was also dependent on the available data. Their IPO's happened respectively at <strong>June 14th, 2019</strong> and <strong>June 12th, 2019</strong>, which means that with some luck we should be able to obtain around 150 sessions of data for each of those assets, a number sufficient for testing the behavior of models depending on target dataset size.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "eAEs",
+      "id": "SFPL",
       "code_hash": "60b9f6be4a749c570e50c571a71a0fc2",
       "outputs": [
         {
@@ -110,7 +110,7 @@
       "console": []
     },
     {
-      "id": "PKri",
+      "id": "BYtC",
       "code_hash": "de99d3dcd1bcaa0099eb7e10aec7a809",
       "outputs": [
         {
@@ -123,7 +123,7 @@
       "console": []
     },
     {
-      "id": "hYum",
+      "id": "RGSE",
       "code_hash": "60d6b3c651700104f3dfa9a6f987485b",
       "outputs": [
         {
@@ -136,59 +136,59 @@
       "console": []
     },
     {
-      "id": "lwOP",
+      "id": "Kclp",
       "code_hash": "f57da958928b6235d2d4f5821dae501d",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='hYum-0' random-id='b6d3539a-7425-1c08-18bf-77c3ca7b7463'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='lwOP-0' random-id='20c24284-9dc4-1897-11da-d094f2a35352'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:00:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.44,&#92;&quot;close&#92;&quot;:27.44},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 11:27:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.0,&#92;&quot;close&#92;&quot;:27.0},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:06:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.11,&#92;&quot;close&#92;&quot;:27.09},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:07:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.09,&#92;&quot;close&#92;&quot;:27.09},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:14:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.12,&#92;&quot;close&#92;&quot;:27.12},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:17:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.12,&#92;&quot;close&#92;&quot;:27.12},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:18:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.12,&#92;&quot;close&#92;&quot;:27.12},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:20:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.1201,&#92;&quot;close&#92;&quot;:27.12},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:21:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.12,&#92;&quot;close&#92;&quot;:27.12},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 13:23:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:27.12,&#92;&quot;close&#92;&quot;:27.12}]&quot;' data-total-rows='420837' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;timestamp&quot;,[&quot;datetime&quot;,&quot;datetime64[us, UTC]&quot;]],[&quot;open&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='RGSE-0' random-id='94005f05-5e21-973e-fa3e-36241c058b86'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='Kclp-0' random-id='af50bddb-2061-9f81-c426-56dc81149361'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-01 00:02:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:55.58,&#92;&quot;close&#92;&quot;:55.58},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-01 00:25:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:55.5,&#92;&quot;close&#92;&quot;:55.5},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-01 00:59:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:55.55,&#92;&quot;close&#92;&quot;:55.55},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:00:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:55.48,&#92;&quot;close&#92;&quot;:55.48},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:51:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.65,&#92;&quot;close&#92;&quot;:54.65},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:52:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.55,&#92;&quot;close&#92;&quot;:54.55},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 11:37:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.49,&#92;&quot;close&#92;&quot;:54.49},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 12:04:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.36,&#92;&quot;close&#92;&quot;:54.4},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 12:08:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.4,&#92;&quot;close&#92;&quot;:54.4},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 12:12:00+00:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.41,&#92;&quot;close&#92;&quot;:54.4}]&quot;' data-total-rows='516292' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;timestamp&quot;,[&quot;datetime&quot;,&quot;datetime64[us, UTC]&quot;]],[&quot;open&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "hpcF",
-      "code_hash": "f9d4b6c8e4f9e3e91fb02d86026af2a8",
+      "id": "emfo",
+      "code_hash": "4c74e16fe93664cf9c19fc28d31595c5",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">We only select columns related to timestamps, symbols and open / close prices. The column containing volumes is dropped on purpose, as it will not be needed for our experiments. </span>\n<span class=\"paragraph\">At this point the timestamps are expressed in the UTC timezone. To make it easier to align the data with the regular NYSE trading sessions we now convert all of the timestamps to NYC timezone. </span>\n<span class=\"paragraph\">Moreover, as we don't want to include any overnight returns, we filter out any bars that are not inside regular trading sessions. For that we first need to fetch the information about all considered sessions. This data can be seen in the table below:</span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">We only select columns related to timestamps, symbols and open / close prices. The column containing volumes is dropped on purpose, as it will not be needed for our experiments.</span>\n<span class=\"paragraph\">At this point the timestamps are expressed in the UTC timezone. To make it easier to align the data with the regular NYSE trading sessions we now convert all of the timestamps to NYC timezone.</span>\n<span class=\"paragraph\">Moreover, as we don't want to include any overnight returns, we filter out any bars that are not inside regular trading sessions. For that we first need to fetch the information about all considered sessions. This data can be seen in the table below:</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "SFPL",
+      "id": "Hstk",
       "code_hash": "9504a519121924dcfeaa6b0a3497d46e",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='SFPL-0' random-id='b83696fe-e69b-be12-0cd9-be9d37634710'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-04 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-04 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-05 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-05 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-05&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-06 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-06 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-06&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-07 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-07 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-07&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-08 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-08 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-08&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-11 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-11 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-11&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-12 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-12 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-12&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-13 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-13 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-13&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-14 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-14 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-14&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-15 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-15 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-15&#92;&quot;}]&quot;' data-total-rows='1041' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;open&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]],[&quot;close&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]],[&quot;minutes&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;date&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='Hstk-0' random-id='2f320d3d-07c8-266b-a66a-2026edf86454'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-04 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-04 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-05 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-05 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-05&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-06 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-06 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-06&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-07 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-07 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-07&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-08 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-08 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-08&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-11 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-11 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-11&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-12 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-12 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-12&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-13 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-13 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-13&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-14 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-14 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-14&#92;&quot;},{&#92;&quot;open&#92;&quot;:&#92;&quot;2016-01-15 09:30:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:&#92;&quot;2016-01-15 16:00:00-05:00&#92;&quot;,&#92;&quot;minutes&#92;&quot;:390.0,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-15&#92;&quot;}]&quot;' data-total-rows='1041' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;open&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]],[&quot;close&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]],[&quot;minutes&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;date&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "Xref",
-      "code_hash": "f4d6b11714cd811a241a65f2596abf72",
+      "id": "nWHF",
+      "code_hash": "f20dc7e8129284d4dbc90f1875ec7afc",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The datasets for every asset after aligning timestamps and filtering out any bars outside of regular NYSE trading sessions can be inspected below. It's important to notice that the timestamps represent the exact time each bar opened. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The datasets for every asset after aligning timestamps and filtering out any bars outside of regular NYSE trading sessions can be inspected below. It's important to notice that the timestamps represent the exact time each bar opened.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "BYtC",
+      "id": "iLit",
       "code_hash": "cf5d253a3a11fbf480d7ec81d5d4fd7d",
       "outputs": [
         {
@@ -201,59 +201,59 @@
       "console": []
     },
     {
-      "id": "RGSE",
+      "id": "ZHCJ",
       "code_hash": "189cb1e704bc104f1b7b909e168b99aa",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='BYtC-0' random-id='b3532ee6-c519-c086-87dd-6598c7e6d1c0'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='RGSE-0' random-id='0fadb368-89be-c56b-3770-68f0865c5500'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:30:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.95,&#92;&quot;close&#92;&quot;:63.8957,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:31:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.91,&#92;&quot;close&#92;&quot;:63.88,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:32:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.88,&#92;&quot;close&#92;&quot;:63.8999,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:33:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.9,&#92;&quot;close&#92;&quot;:63.79,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:34:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.78,&#92;&quot;close&#92;&quot;:63.82,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:35:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.83,&#92;&quot;close&#92;&quot;:63.86,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:36:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.85,&#92;&quot;close&#92;&quot;:63.73,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:37:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.73,&#92;&quot;close&#92;&quot;:63.7,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:38:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.7066,&#92;&quot;close&#92;&quot;:63.61,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:39:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:63.6,&#92;&quot;close&#92;&quot;:63.649,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;}]&quot;' data-total-rows='404323' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;timestamp&quot;,[&quot;datetime&quot;,&quot;datetime64[us, America/New_York]&quot;]],[&quot;open&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;date&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='iLit-0' random-id='da00ed85-bbe3-ccce-8049-0edcf856ee59'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='ZHCJ-0' random-id='7a4e8095-bcf7-7bf8-8f9b-1c99e5bf3266'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:30:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.37,&#92;&quot;close&#92;&quot;:54.11,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:31:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.11,&#92;&quot;close&#92;&quot;:53.94,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:32:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:53.93,&#92;&quot;close&#92;&quot;:54.05,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:33:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.0531,&#92;&quot;close&#92;&quot;:54.169,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:34:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.17,&#92;&quot;close&#92;&quot;:54.135,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:35:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.135,&#92;&quot;close&#92;&quot;:54.18,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:36:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.2,&#92;&quot;close&#92;&quot;:54.23,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:37:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.23,&#92;&quot;close&#92;&quot;:54.29,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:38:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.3,&#92;&quot;close&#92;&quot;:54.24,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;timestamp&#92;&quot;:&#92;&quot;2016-01-04 09:39:00-05:00&#92;&quot;,&#92;&quot;open&#92;&quot;:54.24,&#92;&quot;close&#92;&quot;:54.31,&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;}]&quot;' data-total-rows='403533' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;timestamp&quot;,[&quot;datetime&quot;,&quot;datetime64[us, America/New_York]&quot;]],[&quot;open&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;date&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "Kclp",
-      "code_hash": "f077494eee327669617136d250da50da",
+      "id": "ROlb",
+      "code_hash": "346336a25a220a44ec1b45a4609883ce",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">We now perform the first quality check: how much of the expected intraday bar data is present before any imputation. This report describes the coverage at a one-minute bar level. It doesn't measure the number of missing five-minute returns. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">We now perform the first quality check: how much of the expected intraday bar data is present before any imputation. This report describes the coverage at a one-minute bar level. It doesn't measure the number of missing five-minute returns.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "emfo",
+      "id": "qnkX",
       "code_hash": "34d66a12a2f5327ec5287d2eda7e211d",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='emfo-0' random-id='93f26e9b-ca25-d54f-e714-c79a93f644b2'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:4,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403533,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9979301135099043},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:4,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403533,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9979301135099043},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:366,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:402751,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9959962410663501},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:59,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403464,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9977594777060613},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:9,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404316,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9998664589361228},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:666,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:401180,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9921111853005911},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:3,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404323,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9998837698147736},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:2,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404340,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9999258105200682},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:11,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404289,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9997996884041843},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:23,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404229,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9996513094443208}]&quot;' data-total-rows='14' data-total-columns='11' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;first_date&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;last_date&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;expected_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;observed_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;incomplete_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;expected_bars&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;observed_bars&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;duplicated_bars&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;coverage_pct&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='qnkX-0' random-id='9a3d2d33-ea07-e145-8dae-b86173bc2d83'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:4,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403533,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9979301135099043},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:4,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403533,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9979301135099043},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:366,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:402751,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9959962410663501},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:59,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:403464,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9977594777060613},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:9,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404316,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9998664589361228},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:666,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:401180,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9921111853005911},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:3,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404323,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9998837698147736},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:2,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404340,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9999258105200682},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:11,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404289,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9997996884041843},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1041,&#92;&quot;observed_sessions&#92;&quot;:1041,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;incomplete_sessions&#92;&quot;:23,&#92;&quot;expected_bars&#92;&quot;:404370.0,&#92;&quot;observed_bars&#92;&quot;:404229,&#92;&quot;duplicated_bars&#92;&quot;:0,&#92;&quot;coverage_pct&#92;&quot;:0.9996513094443208}]&quot;' data-total-rows='14' data-total-columns='11' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;first_date&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;last_date&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;expected_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;observed_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;incomplete_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;expected_bars&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;observed_bars&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;duplicated_bars&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;coverage_pct&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "Hstk",
-      "code_hash": "cdd9e187e249c30306897dbd0025adb7",
+      "id": "TqIu",
+      "code_hash": "bd84a0389d3a82072a1a5c6a6ce7cc71",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">At a first glance the raw data coverage report looks promising. The most worrying values are the ones related to target assets, as they have the lowest coverage rate. This can become problematic considering that we already have very little information about those two stocks.</span>\n<span class=\"paragraph\">However, this one-minute coverage report is not sufficient to determine the usability of the data for our model, as we will be using five-minute returns. Thus, we will now compute the five-minute log returns for all assets and check how many of them we are missing. </span>\n<span class=\"paragraph\">First let's take a look at the computed returns below. Here the interval end timestamp, represents the exact time that the respective five-minute interval used for computing returns closed. The formula that we use for computing the returns is as follows:</span>\n<span class=\"paragraph\">Assume that we want to calculate the returns over a given five-minute interval. Let <marimo-tex class=\"arithmatex\">||(P_t||)</marimo-tex> denote the closing price of the last bar within this interval and <marimo-tex class=\"arithmatex\">||(P_{t-1}||)</marimo-tex> denote the closing price of the last bar within the previous interval. Then</span>\n<marimo-tex class=\"arithmatex\">||[\nr_t = \\log\\frac{P_t}{P_{t-1}}.\n||]</marimo-tex><span class=\"paragraph\">If the considered interval is the first one of the trading session we use the trading sessions's first bar's opening price instead of <marimo-tex class=\"arithmatex\">||(P_{t-1}||)</marimo-tex>. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">At a first glance the raw data coverage report looks promising. The most worrying values are the ones related to target assets, as they have the lowest coverage rate. This can become problematic considering that we already have very little information about those two stocks.</span>\n<span class=\"paragraph\">However, this one-minute coverage report is not sufficient to determine the usability of the data for our model, as we will be using five-minute returns. Thus, we will now compute the five-minute log returns for all assets and check how many of them we are missing.</span>\n<span class=\"paragraph\">First let's take a look at the computed returns below. Here the interval end timestamp, represents the exact time that the respective five-minute interval used for computing returns closed. The formula that we use for computing the returns is as follows:</span>\n<span class=\"paragraph\">Assume that we want to calculate the returns over a given five-minute interval. Let <marimo-tex class=\"arithmatex\">||(P_t||)</marimo-tex> denote the closing price of the last bar within this interval and <marimo-tex class=\"arithmatex\">||(P_{t-1}||)</marimo-tex> denote the closing price of the last bar within the previous interval. Then</span>\n<marimo-tex class=\"arithmatex\">||[\nr_t = \\log\\frac{P_t}{P_{t-1}}.\n||]</marimo-tex><span class=\"paragraph\">If the considered interval is the first one of the trading session we use the trading sessions's first bar's opening price instead of <marimo-tex class=\"arithmatex\">||(P_{t-1}||)</marimo-tex>.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "nWHF",
+      "id": "Vxnm",
       "code_hash": "37c3208270004742223956d5f4a44101",
       "outputs": [
         {
@@ -266,7 +266,7 @@
       "console": []
     },
     {
-      "id": "qhaC",
+      "id": "DnEU",
       "code_hash": "093b5eba89b0752258eaf16fc73b9c94",
       "outputs": [
         {
@@ -279,85 +279,85 @@
       "console": []
     },
     {
-      "id": "etEV",
+      "id": "ulZA",
       "code_hash": "f2d26120af7c749967bbbd938db9917d",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='qhaC-0' random-id='93f548eb-c9c1-6baa-8375-3909704f93d2'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='etEV-0' random-id='a57673bb-ff25-c66d-9e71-701f7e5b7a88'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:35:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.004331604394967492},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:40:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.003227445283892294},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:45:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0019352169334987401},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:50:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0011965903217019402},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:55:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0010147807075360227},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:00:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.00266556525309003},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:05:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0070007655122474866},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:10:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0035065090833326096},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:15:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.00461638711069412},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:20:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0002775850121921053}]&quot;' data-total-rows='80874' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;interval_end&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='DnEU-0' random-id='1bff1867-b303-92f8-cf90-c3f846d659f0'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='ulZA-0' random-id='86d8281f-da8e-38d6-c7f5-b173e162b429'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:35:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.004331604394967492},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:40:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.003227445283892294},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:45:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0019352169334987401},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:50:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0011965903217019402},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:55:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0010147807075360227},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:00:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.00266556525309003},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:05:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0070007655122474866},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:10:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0035065090833326096},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:15:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.00461638711069412},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:20:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0002775850121921053}]&quot;' data-total-rows='80874' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;interval_end&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "wULP",
-      "code_hash": "e1fe5c31718bdc1a309f47b56008f042",
+      "id": "ecfG",
+      "code_hash": "edba253b523ee20f52832fc74e654e1f",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Not let's compare the numbers of missing returns across assets. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Not let's compare the numbers of missing returns across assets.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "ROlb",
+      "id": "Pvdt",
       "code_hash": "34585ee7734cb4523772d118eeb34f2b",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='ROlb-0' random-id='7ed961f4-0d6f-391e-4901-9d7ec71bce1b'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:170},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:170},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:536},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:194},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:17},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:1090},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:12},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:9},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:20},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:45}]&quot;' data-total-rows='14' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;missing_returns&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='Pvdt-0' random-id='ceaeb3aa-e543-1b6a-0c8f-6206dcda0eae'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:170},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:170},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:536},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:194},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:17},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:1090},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:12},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:9},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:20},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;missing_returns&#92;&quot;:45}]&quot;' data-total-rows='14' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;missing_returns&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "qnkX",
-      "code_hash": "80dd538d0011f89f785a762918d4af49",
+      "id": "ZBYS",
+      "code_hash": "224c6ced917045d97dec4263a3815ba4",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Given how long is the history for our source assets most of them aren't worrying. The one standing out is Costco. As we were rightfully worried before, both target assets miss a lot of values. This is a big issue, because in our models we intend to use among others, the 22 day rolling volatility. This means that with so many missing returns we might not be able to compute enough features. </span>\n<span class=\"paragraph\">To see this better we can count how many windows we would be able to construct for each asset without any imputing:</span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Given how long is the history for our source assets most of them aren't worrying. The one standing out is Costco. As we were rightfully worried before, both target assets miss a lot of values. This is a big issue, because in our models we intend to use among others, the 22 day rolling volatility. This means that with so many missing returns we might not be able to compute enough features.</span>\n<span class=\"paragraph\">To see this better we can count how many windows we would be able to construct for each asset without any imputing:</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "TqIu",
+      "id": "aLJB",
       "code_hash": "2d72d089edb7341d24e56530cbb8dbb6",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='TqIu-0' random-id='8b55afd8-fad0-a2ac-614a-dd4c387c002c'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:891,&#92;&quot;valid_5windows&#92;&quot;:552,&#92;&quot;valid_22windows&#92;&quot;:144},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1026,&#92;&quot;valid_5windows&#92;&quot;:970,&#92;&quot;valid_22windows&#92;&quot;:756},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1035,&#92;&quot;valid_5windows&#92;&quot;:1007,&#92;&quot;valid_22windows&#92;&quot;:892},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:729,&#92;&quot;valid_5windows&#92;&quot;:304,&#92;&quot;valid_22windows&#92;&quot;:32},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1038,&#92;&quot;valid_5windows&#92;&quot;:1022,&#92;&quot;valid_22windows&#92;&quot;:955},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1039,&#92;&quot;valid_5windows&#92;&quot;:1027,&#92;&quot;valid_22windows&#92;&quot;:977},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1036,&#92;&quot;valid_5windows&#92;&quot;:1012,&#92;&quot;valid_22windows&#92;&quot;:911},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1022,&#92;&quot;valid_5windows&#92;&quot;:951,&#92;&quot;valid_22windows&#92;&quot;:716}]&quot;' data-total-rows='14' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;valid_1windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_5windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_22windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='aLJB-0' random-id='f2a7a00e-d236-1aa7-41d7-b2b964aa69ad'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:891,&#92;&quot;valid_5windows&#92;&quot;:552,&#92;&quot;valid_22windows&#92;&quot;:144},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1026,&#92;&quot;valid_5windows&#92;&quot;:970,&#92;&quot;valid_22windows&#92;&quot;:756},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1035,&#92;&quot;valid_5windows&#92;&quot;:1007,&#92;&quot;valid_22windows&#92;&quot;:892},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:729,&#92;&quot;valid_5windows&#92;&quot;:304,&#92;&quot;valid_22windows&#92;&quot;:32},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1038,&#92;&quot;valid_5windows&#92;&quot;:1022,&#92;&quot;valid_22windows&#92;&quot;:955},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1039,&#92;&quot;valid_5windows&#92;&quot;:1027,&#92;&quot;valid_22windows&#92;&quot;:977},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1036,&#92;&quot;valid_5windows&#92;&quot;:1012,&#92;&quot;valid_22windows&#92;&quot;:911},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1022,&#92;&quot;valid_5windows&#92;&quot;:951,&#92;&quot;valid_22windows&#92;&quot;:716}]&quot;' data-total-rows='14' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;valid_1windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_5windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_22windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "Vxnm",
-      "code_hash": "3902c09c513452ebd9b4095dbd36c729",
+      "id": "nHfw",
+      "code_hash": "a6e49cec32e8fdd246220b7e2acd2959",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">As we can see the returns for some of the assets are completely unusable. In particular, for CHWY we wouldn't be able to construct a single 22 day rolling volatility value. For a lot of the assets, we have a decent coverage. </span>\n<span class=\"paragraph\">First, notice that a missing return value can have three sources:</span>\n<ol>\n<li>Interval's close price is missing</li>\n<li>Previous interval's close price is missing</li>\n<li>Session open price is missing</li>\n</ol>\n<span class=\"paragraph\">We can see that if we would impute some of the closing prices at the ends of intervals, we would effectively take care of two sources (1, 2) of missing returns values. That's why we will begin with this approach. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">As we can see the returns for some of the assets are completely unusable. In particular, for CHWY we wouldn't be able to construct a single 22 day rolling volatility value. For a lot of the assets, we have a decent coverage.</span>\n<span class=\"paragraph\">First, notice that a missing return value can have three sources:</span>\n<ol>\n<li>Interval's close price is missing</li>\n<li>Previous interval's close price is missing</li>\n<li>Session open price is missing</li>\n</ol>\n<span class=\"paragraph\">We can see that if we would impute some of the closing prices at the ends of intervals, we would effectively take care of two sources (1, 2) of missing returns values. That's why we will begin with this approach.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "OhqD",
+      "id": "xXTn",
       "code_hash": "69e8165c3660c577565ccffdb53d3d73",
       "outputs": [
         {
@@ -370,20 +370,20 @@
       "console": []
     },
     {
-      "id": "RXoV",
-      "code_hash": "e082b75825cc2368efc28df2c2db1249",
+      "id": "AjVT",
+      "code_hash": "d78e99420c47533bf741f3de397bcd0e",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The idea behind imputing the interval endpoints is very simple. We will try to just forward fill the missing values, but in a controled way. Ideally, we would like to forward fill not further away than three minutes. This limit is just a guess of what makes sense and hopefully most of the missing bars can be imputed using the bars directly before them. Moreover, we don't want to forward fill across different sessions, because data points from two different sessions would be very far away from each other and may introduce some of the overnight returns. </span>\n<span class=\"paragraph\">In case it's not clear, we don't want the data points to be too far away from each other, because it affects the data more than it does when we use adjacent points, and our goal is to create a dataset that is as complete as possible and as similar to reality as possible. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The idea behind imputing the interval endpoints is very simple. We will try to just forward fill the missing values, but in a controled way. Ideally, we would like to forward fill not further away than three minutes. This limit is just a guess of what makes sense and hopefully most of the missing bars can be imputed using the bars directly before them. Moreover, we don't want to forward fill across different sessions, because data points from two different sessions would be very far away from each other and may introduce some of the overnight returns.</span>\n<span class=\"paragraph\">In case it's not clear, we don't want the data points to be too far away from each other, because it affects the data more than it does when we use adjacent points, and our goal is to create a dataset that is as complete as possible and as similar to reality as possible.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "ecfG",
+      "id": "pHFh",
       "code_hash": "3123550800d6e029d9201d80a7834db5",
       "outputs": [
         {
@@ -396,33 +396,33 @@
       "console": []
     },
     {
-      "id": "Pvdt",
+      "id": "NCOB",
       "code_hash": "815a96bbe935a7eef7afc3e802681939",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='ecfG-0' random-id='35ffc567-446b-4528-8f6f-34d87b032820'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='Pvdt-0' random-id='9aff444c-857d-9d3f-49a7-19a068a0600c'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-02 11:20:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:2.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-02 11:25:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:7.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:30:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:4.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:35:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:9.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:40:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:14.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:45:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:19.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:50:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:24.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:55:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:29.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 11:00:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:34.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 11:05:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:39.0}]&quot;' data-total-rows='168' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;lag_minutes&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;interval_end&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='pHFh-0' random-id='455d4ef4-a2f4-3a13-63b5-39dc7f275073'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='NCOB-0' random-id='d70108aa-12d0-4dc6-5359-2c8cc3c9659c'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-02 11:20:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:2.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-02 11:25:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:7.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:30:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:4.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:35:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:9.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:40:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:14.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:45:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:19.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:50:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:24.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 10:55:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:29.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 11:00:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:34.0},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-02-22 11:05:00-05:00&#92;&quot;,&#92;&quot;lag_minutes&#92;&quot;:39.0}]&quot;' data-total-rows='168' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;lag_minutes&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;interval_end&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "ImkR",
-      "code_hash": "372ad5eed636b218844dbf305a90ccb4",
+      "id": "aqbW",
+      "code_hash": "f0628b12fdb0fae3a2324396aeac27c3",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The above table shows two types of missing data: </span>\n<ul>\n<li>Short isolated gaps, typically one or two missing bars, visible as small lags of 1 or 2 minutes</li>\n<li>Long consecutive gaps, where the lag increases by approximately five minutes for each missing interval. These indicate extended periods with no available bars rather than isolated observations.</li>\n</ul>\n<span class=\"paragraph\">The most important cases:</span>\n<ul>\n<li><strong>2016-02-02:</strong> short gaps affecting many assets</li>\n<li><strong>2016-02-22:</strong> an approximately one-hour block missing for many assets</li>\n<li><strong>2018-05-02</strong> and <strong>2018-05-03:</strong> nearly complete loss of the trading session for selected assets</li>\n<li><strong>2019-08-12:</strong> approximately 30-minute gaps for several assets</li>\n<li><strong>CRWD and CHWY IPO dates:</strong> missing observations at the beggining of the session</li>\n</ul>\n<span class=\"paragraph\">Forward filling those dates could introduce unreliable prices, hence these dates are for now excluded from forward filling. </span>\n<table>\n<thead>\n<tr>\n<th>Asset</th>\n<th>Dates excluded from forward fill</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>MSFT</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>CSCO</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>AMZN</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>EBAY</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>WMT</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>COST</td>\n<td>2016-02-02, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>JPM</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>BAC</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>JNJ</td>\n<td>2016-02-02, 2019-08-12, 2019-10-29</td>\n</tr>\n<tr>\n<td>PFE</td>\n<td>2016-02-02, 2019-08-12, 2019-10-09</td>\n</tr>\n<tr>\n<td>XOM</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>CVX</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>CRWD</td>\n<td>2019-06-12</td>\n</tr>\n<tr>\n<td>CHWY</td>\n<td>2019-06-14, 2019-08-12</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Apart from these dates we will use forward fill with maximum lag of 7 minutes to imput some of the missing data. While this choice of maximum lag might seem risky, there were very few missing values with 7 minute lag, and imputing them shouldn't have a great impact on the overall quality of the resulting dataset. </span>\n<span class=\"paragraph\">In the table below we can see how many values were imputed for each asset and what was the reduction in missing returns. </span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The above table shows two types of missing data:</span>\n<ul>\n<li>Short isolated gaps, typically one or two missing bars, visible as small lags of 1 or 2 minutes</li>\n<li>Long consecutive gaps, where the lag increases by approximately five minutes for each missing interval. These indicate extended periods with no available bars rather than isolated observations.</li>\n</ul>\n<span class=\"paragraph\">The most important cases:</span>\n<ul>\n<li><strong>2016-02-02:</strong> short gaps affecting many assets</li>\n<li><strong>2016-02-22:</strong> an approximately one-hour block missing for many assets</li>\n<li><strong>2018-05-02</strong> and <strong>2018-05-03:</strong> nearly complete loss of the trading session for selected assets</li>\n<li><strong>2019-08-12:</strong> approximately 30-minute gaps for several assets</li>\n<li><strong>CRWD and CHWY IPO dates:</strong> missing observations at the beggining of the session</li>\n</ul>\n<span class=\"paragraph\">Forward filling those dates could introduce unreliable prices, hence these dates are for now excluded from forward filling.</span>\n<table>\n<thead>\n<tr>\n<th>Asset</th>\n<th>Dates excluded from forward fill</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>MSFT</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>CSCO</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>AMZN</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>EBAY</td>\n<td>2016-02-02, 2016-02-22, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>WMT</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>COST</td>\n<td>2016-02-02, 2018-05-02, 2018-05-03</td>\n</tr>\n<tr>\n<td>JPM</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>BAC</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>JNJ</td>\n<td>2016-02-02, 2019-08-12, 2019-10-29</td>\n</tr>\n<tr>\n<td>PFE</td>\n<td>2016-02-02, 2019-08-12, 2019-10-09</td>\n</tr>\n<tr>\n<td>XOM</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>CVX</td>\n<td>2016-02-02, 2019-08-12</td>\n</tr>\n<tr>\n<td>CRWD</td>\n<td>2019-06-12</td>\n</tr>\n<tr>\n<td>CHWY</td>\n<td>2019-06-14, 2019-08-12</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Apart from these dates we will use forward fill with maximum lag of 7 minutes to imput some of the missing data. While this choice of maximum lag might seem risky, there were very few missing values with 7 minute lag, and imputing them shouldn't have a great impact on the overall quality of the resulting dataset.</span>\n<span class=\"paragraph\">In the table below we can see how many values were imputed for each asset and what was the reduction in missing returns.</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "nHfw",
+      "id": "TRpd",
       "code_hash": "c5c1c9e2498d49900e14a18df4f493b9",
       "outputs": [
         {
@@ -435,7 +435,7 @@
       "console": []
     },
     {
-      "id": "xXTn",
+      "id": "TXez",
       "code_hash": "46da24bd08b525f02e93d22ef4f0ed38",
       "outputs": [
         {
@@ -448,52 +448,429 @@
       "console": []
     },
     {
-      "id": "zDlx",
+      "id": "dNNg",
       "code_hash": "959ff132b6271076c012cf70577e54fb",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='zDlx-0' random-id='599c9af0-e192-a76c-6cd6-a25b28d2e2f1'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:170,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:170,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:536,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:366,&#92;&quot;imputed_close_values&#92;&quot;:782},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:194,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:24,&#92;&quot;imputed_close_values&#92;&quot;:69},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:17,&#92;&quot;missing_returns_filled&#92;&quot;:13,&#92;&quot;missing_returns_reduction&#92;&quot;:4,&#92;&quot;imputed_close_values&#92;&quot;:6},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:1090,&#92;&quot;missing_returns_filled&#92;&quot;:168,&#92;&quot;missing_returns_reduction&#92;&quot;:922,&#92;&quot;imputed_close_values&#92;&quot;:2363},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:12,&#92;&quot;missing_returns_filled&#92;&quot;:12,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:9,&#92;&quot;missing_returns_filled&#92;&quot;:9,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:20,&#92;&quot;missing_returns_filled&#92;&quot;:18,&#92;&quot;missing_returns_reduction&#92;&quot;:2,&#92;&quot;imputed_close_values&#92;&quot;:7},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:45,&#92;&quot;missing_returns_filled&#92;&quot;:45,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:4}]&quot;' data-total-rows='14' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;missing_returns_raw&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_returns_filled&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_returns_reduction&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;imputed_close_values&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='dNNg-0' random-id='7effb932-fb84-19a1-0651-97204308f5c3'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:170,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:170,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:536,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:366,&#92;&quot;imputed_close_values&#92;&quot;:782},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:194,&#92;&quot;missing_returns_filled&#92;&quot;:170,&#92;&quot;missing_returns_reduction&#92;&quot;:24,&#92;&quot;imputed_close_values&#92;&quot;:69},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:17,&#92;&quot;missing_returns_filled&#92;&quot;:13,&#92;&quot;missing_returns_reduction&#92;&quot;:4,&#92;&quot;imputed_close_values&#92;&quot;:6},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:1090,&#92;&quot;missing_returns_filled&#92;&quot;:168,&#92;&quot;missing_returns_reduction&#92;&quot;:922,&#92;&quot;imputed_close_values&#92;&quot;:2363},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:12,&#92;&quot;missing_returns_filled&#92;&quot;:12,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:9,&#92;&quot;missing_returns_filled&#92;&quot;:9,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:0},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:20,&#92;&quot;missing_returns_filled&#92;&quot;:18,&#92;&quot;missing_returns_reduction&#92;&quot;:2,&#92;&quot;imputed_close_values&#92;&quot;:7},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;missing_returns_raw&#92;&quot;:45,&#92;&quot;missing_returns_filled&#92;&quot;:45,&#92;&quot;missing_returns_reduction&#92;&quot;:0,&#92;&quot;imputed_close_values&#92;&quot;:4}]&quot;' data-total-rows='14' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;missing_returns_raw&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_returns_filled&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_returns_reduction&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;imputed_close_values&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "cwZt",
-      "code_hash": "66f27bcf2cc18e3330b0ee711386b9e1",
+      "id": "yCnT",
+      "code_hash": "146239bab31c3b3a91a8733a1821647d",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">As we can see in the above table, the imputation had a great effect on some of the asset, including the target assets. It didn't have an effect on some of the other assets though, this indicates that they are affected mostly or only by the missing values occuring on excluded dates. </span>\n<span class=\"paragraph\">Let's also look at how many rolling features are we able to construct with the available data now:</span></span>"
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">As we can see in the above table, the imputation had a great effect on some of the asset, including the target assets. It didn't have an effect on some of the other assets though, this indicates that they are affected mostly or only by the missing values occuring on excluded dates.</span>\n<span class=\"paragraph\">Let's also look at how many rolling features are we able to construct with the available data now:</span></span>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "BLwe",
+      "id": "wlCL",
       "code_hash": "5630bc16cf7ff0d9a8a08312eaf4678a",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/html": "<marimo-ui-element object-id='BLwe-0' random-id='0e16c3d9-17c6-c94a-97ee-8ad49e91b190'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1017,&#92;&quot;valid_22windows&#92;&quot;:936},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1038,&#92;&quot;valid_5windows&#92;&quot;:1022,&#92;&quot;valid_22windows&#92;&quot;:955},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1039,&#92;&quot;valid_5windows&#92;&quot;:1027,&#92;&quot;valid_22windows&#92;&quot;:977},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1017,&#92;&quot;valid_22windows&#92;&quot;:933},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1022,&#92;&quot;valid_5windows&#92;&quot;:951,&#92;&quot;valid_22windows&#92;&quot;:716}]&quot;' data-total-rows='14' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;valid_1windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_5windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_22windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+            "text/html": "<marimo-ui-element object-id='wlCL-0' random-id='da3f8b33-27bf-aad2-7c3e-badad50363ef'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;WMT&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1017,&#92;&quot;valid_22windows&#92;&quot;:936},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1021,&#92;&quot;valid_22windows&#92;&quot;:963},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1038,&#92;&quot;valid_5windows&#92;&quot;:1022,&#92;&quot;valid_22windows&#92;&quot;:955},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1039,&#92;&quot;valid_5windows&#92;&quot;:1027,&#92;&quot;valid_22windows&#92;&quot;:977},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1037,&#92;&quot;valid_5windows&#92;&quot;:1017,&#92;&quot;valid_22windows&#92;&quot;:933},{&#92;&quot;Symbol&#92;&quot;:&#92;&quot;PFE&#92;&quot;,&#92;&quot;valid_1windows&#92;&quot;:1022,&#92;&quot;valid_5windows&#92;&quot;:951,&#92;&quot;valid_22windows&#92;&quot;:716}]&quot;' data-total-rows='14' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;valid_1windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_5windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;valid_22windows&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Symbol&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],
       "console": []
     },
     {
-      "id": "aQaw",
+      "id": "kqZH",
       "code_hash": "fba1b38024cf941ab925bd48d95a7c53",
       "outputs": [
         {
           "type": "data",
           "data": {
             "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The first controlled endpoint fill is now complete. We do not want to fill every remaining missing value automatically. We now inspect what is still missing and separate the remaining cases into sessions that should be excluded, small source gaps that may be handled at the daily realized-variance level, and target-specific missingness that requires explicit treatment.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "wAgl",
+      "code_hash": "e63870cfd9a53f264266018c914752ea",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"further-inspection-of-the-missing-data\">Further inspection of the missing data</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "rEll",
+      "code_hash": "8c1d4d140f6f122e327d31afab4442d7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The table below makes it easier to see the structure of remaining missing returns per session per asset.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "dGlV",
+      "code_hash": "9edc79336e74612ffc561dc48120c13e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='dGlV-0' random-id='da2f8b26-b25b-08a5-e6c7-207da381e1d3'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-02&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:75,&#92;&quot;missing_returns&#92;&quot;:3,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:30:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:3},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-22&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:67,&#92;&quot;missing_returns&#92;&quot;:11,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;10:30:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:11},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2018-05-02&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:0,&#92;&quot;missing_returns&#92;&quot;:78,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;09:35:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;16:00:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:78,&#92;&quot;longest_nan_run&#92;&quot;:78},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2018-05-03&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:0,&#92;&quot;missing_returns&#92;&quot;:78,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;09:35:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;16:00:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:78,&#92;&quot;longest_nan_run&#92;&quot;:78},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-02&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:75,&#92;&quot;missing_returns&#92;&quot;:3,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:30:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:3},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-22&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:67,&#92;&quot;missing_returns&#92;&quot;:11,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;10:30:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:11},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2018-05-02&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:0,&#92;&quot;missing_returns&#92;&quot;:78,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;09:35:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;16:00:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:78,&#92;&quot;longest_nan_run&#92;&quot;:78},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2018-05-03&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:0,&#92;&quot;missing_returns&#92;&quot;:78,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;09:35:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;16:00:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:78,&#92;&quot;longest_nan_run&#92;&quot;:78},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-02&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:75,&#92;&quot;missing_returns&#92;&quot;:3,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:30:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:3},{&#92;&quot;Index0&#92;&quot;:&#92;&quot;2016-02-22&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;expected_returns&#92;&quot;:78,&#92;&quot;observed_returns&#92;&quot;:67,&#92;&quot;missing_returns&#92;&quot;:11,&#92;&quot;min_nan&#92;&quot;:&#92;&quot;10:30:00&#92;&quot;,&#92;&quot;max_nan&#92;&quot;:&#92;&quot;11:20:00&#92;&quot;,&#92;&quot;leading_missing&#92;&quot;:0,&#92;&quot;longest_nan_run&#92;&quot;:11}]&quot;' data-total-rows='93' data-total-columns='8' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;expected_returns&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;observed_returns&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_returns&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;min_nan&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;max_nan&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;leading_missing&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;longest_nan_run&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;Index0&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SdmI",
+      "code_hash": "5fecc1d7f5b20fd1e272bb87d94f8894",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">By manual inspection of the above table we are able to come up with ideas for final adjustments in our data, but first let's explain how exactly will the returns be used in feature engineering for our experiments.</span>\n<span class=\"paragraph\">The problem we are tackling is forecasting the realized variance <marimo-tex class=\"arithmatex\">||(RV_{t+1}||)</marimo-tex> with information available up to and including time <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex>, where time <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex> represents a trading session or its date.</span>\n<span class=\"paragraph\">For a single trading session at time <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex> we define the daily realized variance as:</span>\n<marimo-tex class=\"arithmatex\">||[\nRV_t^{(n)} = \\sum_{i=1}^n r_{t, i}^2,\n||]</marimo-tex><span class=\"paragraph\">where <marimo-tex class=\"arithmatex\">||(n||)</marimo-tex> represents the number of intervals we compute the log returns over within one session. Intuitively, as <marimo-tex class=\"arithmatex\">||(n||)</marimo-tex> gets larger we sample the returns at a higher frequency. Turns out that <marimo-tex class=\"arithmatex\">||(RV_t^{(n)}||)</marimo-tex> is a consistent estimator of the actual variance of the price over one session.</span>\n<span class=\"paragraph\">Then in order to forecast <marimo-tex class=\"arithmatex\">||(Y_t = RV_{t+1}||)</marimo-tex> we will use, among others, <marimo-tex class=\"arithmatex\">||(X_t = (RV_{t, d}, RV_{t, w}, RV_{t, m})||)</marimo-tex>, where:</span>\n<marimo-tex class=\"arithmatex\">||[\nRV_{t, d} \\quad \\text{represents the previous day's realized variance},\n||]</marimo-tex><marimo-tex class=\"arithmatex\">||[\nRV_{t, w} =\\frac{1}{5}\\sum_{i=0}^4RV_{t-i, d} \\quad \\text{represents the weekly realized variance and }\n||]</marimo-tex><marimo-tex class=\"arithmatex\">||[\nRV_{t, m} = \\frac{1}{22}\\sum_{i=0}^{21} RV_{t-i, d} \\quad \\text{represents the monthly realized variance.}\n||]</marimo-tex><span class=\"paragraph\">Having seen that we can define our strategy for final adjustments in our data:</span>\n<ol>\n<li>If we are missing only a few returns from the session, let's say <marimo-tex class=\"arithmatex\">||(k||)</marimo-tex> returns, then it might makes sense to just scale the realized variance <marimo-tex class=\"arithmatex\">||(\\tilde{RV}_t = \\frac{n}{n-k}\\sum_{j\\in A_r}r_{t, j}^2||)</marimo-tex>. If <marimo-tex class=\"arithmatex\">||(k||)</marimo-tex> is sufficiently small this method shouldn't affect the data too much, especially if it isn't used too frequently.</li>\n<li>Ignore the entire 2018-05-02 and 2018-05-03 sessions, as they have no available returns at all. Imputing those gaps would be highly inaccurate.</li>\n<li>For target assets drop the dates of their IPO's respectively as they miss about half of session of data, due to trading starting during the day rather than at the beginning of the session.</li>\n</ol>\n<span class=\"paragraph\">So now the only thing that we will do is drop the respective IPO dates. After that we will continue to construct the final dataset, by using the approach described in 1 whenever needed. As it can be seen in data, there are very few sessions for some assets that have a significant number of missing returns, so using the <marimo-tex class=\"arithmatex\">||(RV||)</marimo-tex> scaling shouldn't decrease the overall quality of data that much and let's us create more usable feature values.</span>\n<span class=\"paragraph\">The final returns per asset can be inspected in the table below:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lgWD",
+      "code_hash": "529819d2d1c9752842f521edbbe4efbb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "yOPj",
+      "code_hash": "b660ebff87354baeff564def6ab755f3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "fwwy",
+      "code_hash": "0d91c13fd9ffc0bc0426972e9458060c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='yOPj-0' random-id='5f6ccfa9-25d4-3242-ce3e-a44186c35388'><marimo-dropdown data-initial-value='[&quot;MSFT&quot;]' data-label='null' data-options='[&quot;MSFT&quot;,&quot;CSCO&quot;,&quot;AMZN&quot;,&quot;EBAY&quot;,&quot;WMT&quot;,&quot;COST&quot;,&quot;JPM&quot;,&quot;BAC&quot;,&quot;JNJ&quot;,&quot;PFE&quot;,&quot;XOM&quot;,&quot;CVX&quot;,&quot;CRWD&quot;,&quot;CHWY&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='fwwy-0' random-id='c5bb9f74-51b8-2e53-b020-b347237d6da0'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:35:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.004331604394967492},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:40:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.003227445283892294},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:45:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0019352169334987401},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:50:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0011965903217019402},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 09:55:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0010147807075360227},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:00:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.00266556525309003},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:05:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.0070007655122474866},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:10:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0035065090833326096},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:15:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:-0.00461638711069412},{&#92;&quot;interval_end&#92;&quot;:&#92;&quot;2016-01-04 10:20:00-05:00&#92;&quot;,&#92;&quot;close&#92;&quot;:0.0002775850121921053}]&quot;' data-total-rows='80874' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[[&quot;interval_end&quot;,[&quot;datetime&quot;,&quot;datetime64[ns, America/New_York]&quot;]]]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "LJZf",
+      "code_hash": "57b2e810feb95cff189e8a9f132a8f43",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"final-dataset-construction\">Final dataset construction</h2>\n<span class=\"paragraph\">In this, final, section of this notebook we prepare and document the actual datasets that will be used for any later experiments. We begin by constructing for each asset and possible date the following observation:</span>\n<marimo-tex class=\"arithmatex\">||[\n(X_t,Y_t) = (RV_{t, d}, RV_{t, w}, RV_{t, m}, RV_{t+1, d}).\n||]</marimo-tex><span class=\"paragraph\">At the same time we keep track of the last date used for constructing the rolling features, which is <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex>. This will make it easier to avoid any data leakage in the future.</span>\n<span class=\"paragraph\">The basic dataset can be seen below:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "urSm",
+      "code_hash": "261fb98ac583dae1a9cf9add987ba8a2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "jxvo",
+      "code_hash": "7bc237d54f3b621ca46f0b2bf87b827b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='jxvo-0' random-id='60817994-b268-072b-e389-5a118b9f6425'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003223645304467009,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00018562548000959083},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-05&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00018562548000959083,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00015068442917698884},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-06&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00015068442917698884,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0006408528276250122},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-07&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0006408528276250122,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003197039522391123},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-08&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003197039522391123,&#92;&quot;rv_w&#92;&quot;:0.00032384624389948104,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003149123734209432},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-11&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003149123734209432,&#92;&quot;rv_w&#92;&quot;:0.0003223558124943295,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00032985837350241187},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-12&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00032985837350241187,&#92;&quot;rv_w&#92;&quot;:0.0003512023911928937,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00047639685630167645},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-13&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00047639685630167645,&#92;&quot;rv_w&#92;&quot;:0.0004163448766178312,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003852411951800013},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-14&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003852411951800013,&#92;&quot;rv_w&#92;&quot;:0.000365222550128829,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0007322118754465006},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-15&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0007322118754465006,&#92;&quot;rv_w&#92;&quot;:0.00044772413477030677,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003769010374624575}]&quot;' data-total-rows='12840' data-total-columns='6' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;t&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;rv_t&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_w&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_m&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_next&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "mWxS",
+      "code_hash": "d8b027f007be7665e9205d8b4df7e019",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "CcZR",
+      "code_hash": "a4e49c60310c554be4fab8f8538c4659",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The table below summarizes how many observations that can be used in the HAR model we have managed to obtain through our work in this notebook. As we can see most of the observations were retained and we now have a quite complete dataset. </span>\n<table>\n<thead>\n<tr>\n<th>symbol</th>\n<th>first_day</th>\n<th>last_day</th>\n<th>observations_without_nan</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>AMZN</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>995</td>\n</tr>\n<tr>\n<td>BAC</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>CHWY</td>\n<td>2019-07-17</td>\n<td>2020-02-20</td>\n<td>151</td>\n</tr>\n<tr>\n<td>COST</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>995</td>\n</tr>\n<tr>\n<td>CRWD</td>\n<td>2019-07-15</td>\n<td>2020-02-20</td>\n<td>153</td>\n</tr>\n<tr>\n<td>CSCO</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>995</td>\n</tr>\n<tr>\n<td>CVX</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>EBAY</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>995</td>\n</tr>\n<tr>\n<td>JNJ</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>JPM</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>MSFT</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>995</td>\n</tr>\n<tr>\n<td>PFE</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>WMT</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n<tr>\n<td>XOM</td>\n<td>2016-02-03</td>\n<td>2020-02-20</td>\n<td>1019</td>\n</tr>\n</tbody>\n</table></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "YWSi",
+      "code_hash": "f96b850d76a8663de1c6b729a6810635",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"extended-har-model-features\">Extended HAR model features</h2>\n<span class=\"paragraph\">The features that we have already computed aren't the only ones used in HAR model, they are just the most basic ones. There is a number of different features one can include in the extended HAR model, but for simplicity we will only add five more features:</span>\n<ol>\n<li><strong>5-day-momentum</strong> given by: <marimo-tex class=\"arithmatex\">||(MOM_t = \\log C_t - \\log C_{t-5}||)</marimo-tex>, where <marimo-tex class=\"arithmatex\">||(C_t||)</marimo-tex> represents the closing price on day <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex>.</li>\n<li><strong>dollar volume change</strong> given by: <marimo-tex class=\"arithmatex\">||(DV_t = \\log(C_t V_t) - \\log (C_{t-1}V_{t-1})||)</marimo-tex>, where <marimo-tex class=\"arithmatex\">||(V_t||)</marimo-tex> is the trading volume on day <marimo-tex class=\"arithmatex\">||(t||)</marimo-tex>.</li>\n<li><strong>CBOE Volatility Index</strong> VIX</li>\n<li><strong>3-month Treasury Bill rate</strong> US3M</li>\n<li><strong>Hang Seng squared return</strong> given by: <marimo-tex class=\"arithmatex\">||(HSI_t = (\\log H_t - \\log H_{t-1})^2||)</marimo-tex></li>\n</ol>\n<span class=\"paragraph\">The data needed to construct those values will now be downloaded and loaded into the notebook. Afterwards we will quickly inspect whether there are any missing values, which hopefully there are not, and construct the final dataset.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "zlud",
+      "code_hash": "786839ecf8526c68a07b56f880600afb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "tZnO",
+      "code_hash": "3fe495676085d755239c9e6ca5672c8f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">When it comes to data needed for the extended features we loaded:</span>\n<ol>\n<li>The daily close prices of our stocks</li>\n<li>The daily Hang Seng close prices</li>\n<li>The daily VIX</li>\n<li>The daily US3M</li>\n</ol>\n<span class=\"paragraph\">The data loaded is from <strong>2015-12-21</strong> to <strong>2020-02-21</strong> inclusive, which is a bit broader time range compared to the original datasets, but since some of the extended features use information from the past, we didn't want to lose any of previously prepared data unneccessarily.</span>\n<span class=\"paragraph\">Below we can quickly inspect all of the loaded datasets:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xvXZ",
+      "code_hash": "981f08f600a3d2eea5bdf2f5087ff047",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "CLip",
+      "code_hash": "0c5fb2ae6e933a3afd43f74256738cb8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='xvXZ-0' random-id='86e254f5-675a-24d3-3d59-98605cb58e0e'><marimo-dropdown data-initial-value='[&quot;stock_daily&quot;]' data-label='null' data-options='[&quot;stock_daily&quot;,&quot;hsi_daily&quot;,&quot;vix_daily&quot;,&quot;us3m_daily&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='CLip-0' random-id='5d8d4b54-486e-81c5-6172-9c0fbd216e2b'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-21 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.22549819946289,&#92;&quot;volume&#92;&quot;:65018000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-22 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.157501220703125,&#92;&quot;volume&#92;&quot;:53356000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-23 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.185001373291016,&#92;&quot;volume&#92;&quot;:54458000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-24 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.13949966430664,&#92;&quot;volume&#92;&quot;:21824000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-28 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.7599983215332,&#92;&quot;volume&#92;&quot;:75672000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-29 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:34.69850158691406,&#92;&quot;volume&#92;&quot;:114700000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-30 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:34.45349884033203,&#92;&quot;volume&#92;&quot;:70380000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-31 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:33.794498443603516,&#92;&quot;volume&#92;&quot;:74992000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:31.84950065612793,&#92;&quot;volume&#92;&quot;:186290000},{&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-05 00:00:00&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;close&#92;&quot;:31.68950080871582,&#92;&quot;volume&#92;&quot;:116452000}]&quot;' data-total-rows='12938' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;date&quot;,[&quot;datetime&quot;,&quot;datetime64[s]&quot;]],[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;close&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;volume&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "YECM",
+      "code_hash": "a2e4fea0b977dde4bb2687248f0258ec",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Now let's summarize the completness of the extended data.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "cEAS",
+      "code_hash": "4b89307bd72a687f8456b0c103057def",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iXej",
+      "code_hash": "83f9cf925ebdc7703dff54334501b360",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='iXej-0' random-id='b170ae82-2007-2988-f024-23a43d18ca1d'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;symbol&#92;&quot;:&#92;&quot;AMZN&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;BAC&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CHWY&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;target&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:174,&#92;&quot;observed_sessions&#92;&quot;:174,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;COST&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CRWD&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;target&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:176,&#92;&quot;observed_sessions&#92;&quot;:176,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CSCO&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;CVX&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;EBAY&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JNJ&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;},{&#92;&quot;symbol&#92;&quot;:&#92;&quot;JPM&#92;&quot;,&#92;&quot;role&#92;&quot;:&#92;&quot;source&#92;&quot;,&#92;&quot;expected_sessions&#92;&quot;:1049,&#92;&quot;observed_sessions&#92;&quot;:1049,&#92;&quot;missing_sessions&#92;&quot;:0,&#92;&quot;missing_close&#92;&quot;:0,&#92;&quot;missing_volume&#92;&quot;:0,&#92;&quot;status&#92;&quot;:&#92;&quot;OK&#92;&quot;}]&quot;' data-total-rows='14' data-total-columns='8' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;role&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;expected_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;observed_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_sessions&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_close&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_volume&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;status&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "EJmg",
+      "code_hash": "6d26fd3dec0c854ea790c7eee6453435",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">As we can see above the daily close and volume data is complete, so we can use without any transformations.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "UmEG",
+      "code_hash": "5e98d2a5dcd0d4372cd8eb4e59ad5337",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='UmEG-0' random-id='3f154acb-ad26-38fa-2fc8-45a98d072a0d'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;source&#92;&quot;:&#92;&quot;HSI&#92;&quot;,&#92;&quot;missing_source_period&#92;&quot;:43,&#92;&quot;missing_target_period&#92;&quot;:6,&#92;&quot;null_values&#92;&quot;:0},{&#92;&quot;source&#92;&quot;:&#92;&quot;VIX&#92;&quot;,&#92;&quot;missing_source_period&#92;&quot;:0,&#92;&quot;missing_target_period&#92;&quot;:0,&#92;&quot;null_values&#92;&quot;:0},{&#92;&quot;source&#92;&quot;:&#92;&quot;US3M&#92;&quot;,&#92;&quot;missing_source_period&#92;&quot;:5,&#92;&quot;missing_target_period&#92;&quot;:2,&#92;&quot;null_values&#92;&quot;:0}]&quot;' data-total-rows='3' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;source&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;missing_source_period&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;missing_target_period&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;null_values&quot;,[&quot;integer&quot;,&quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vEBW",
+      "code_hash": "55d8c1f7b17d0f72f266b45d2da7310e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Here we can see that both HSI and US3M contain some missing observations.\nSince the missing US3M observations are very limited and mainly reflect days without a published observation, we will forward-fill this series. This is reasonable because US3M is a slowly changing interest-rate level, and the latest available rate is a decent estimate of the rate applicable on the missing date.</span>\n<span class=\"paragraph\">The missing HSI observations are caused by the misalignment between Hong Kong and NYSE trading calendars. There are NYSE trading days on which the Hong Kong exchange was closed. For these dates, we will align the latest available HSI closing price to each NYSE session. This avoids introducing information from the future and preserves all NYSE observations.</span>\n<span class=\"paragraph\">Since the HSI feature is based on returns, we will first align the HSI closing prices and then calculate the squared returns. As a result, a NYSE session without a new HSI observation produces no new HSI price movement, while the next available HSI observation captures the accumulated change since the previous Hong Kong trading session.</span>\n<span class=\"paragraph\">After alignment this is how our data looks like:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "kLmu",
+      "code_hash": "cdd3c148a63a67584f05ac8b76e2b800",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='kLmu-0' random-id='3f806c0b-b1a6-d752-92b5-31c56b781386'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-21 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21791.6796875,&#92;&quot;us3m&#92;&quot;:0.24,&#92;&quot;vix&#92;&quot;:18.700000762939453},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-22 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21830.01953125,&#92;&quot;us3m&#92;&quot;:0.21,&#92;&quot;vix&#92;&quot;:16.600000381469727},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-23 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:22040.58984375,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;vix&#92;&quot;:15.569999694824219},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-24 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:22138.130859375,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;vix&#92;&quot;:15.739999771118164},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-28 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21919.619140625,&#92;&quot;us3m&#92;&quot;:0.23,&#92;&quot;vix&#92;&quot;:16.90999984741211},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-29 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21999.619140625,&#92;&quot;us3m&#92;&quot;:0.23,&#92;&quot;vix&#92;&quot;:16.079999923706055},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-30 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21882.150390625,&#92;&quot;us3m&#92;&quot;:0.21,&#92;&quot;vix&#92;&quot;:17.290000915527344},{&#92;&quot;date&#92;&quot;:&#92;&quot;2015-12-31 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21914.400390625,&#92;&quot;us3m&#92;&quot;:0.16,&#92;&quot;vix&#92;&quot;:18.209999084472656},{&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-04 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21327.119140625,&#92;&quot;us3m&#92;&quot;:0.22,&#92;&quot;vix&#92;&quot;:20.700000762939453},{&#92;&quot;date&#92;&quot;:&#92;&quot;2016-01-05 00:00:00&#92;&quot;,&#92;&quot;hsi_close&#92;&quot;:21188.720703125,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;vix&#92;&quot;:19.34000015258789}]&quot;' data-total-rows='1049' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;date&quot;,[&quot;datetime&quot;,&quot;datetime64[s]&quot;]],[&quot;hsi_close&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;us3m&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;vix&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "IpqN",
+      "code_hash": "c2dbbbe13399a2a099f2352f364f7c17",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">The only thing left to do is to compute the feature values using the above presented data and align them with the previously computed <marimo-tex class=\"arithmatex\">||(RV||)</marimo-tex> features. Then our dataset is ready to use.</span>\n<span class=\"paragraph\">The final dataset can be seen below, along with some information about this data.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "dxZZ",
+      "code_hash": "62ca73ecb41601320fd705541d438544",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "dlnW",
+      "code_hash": "28fceb7724e2a93460a3157528a05564",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='dlnW-0' random-id='b4665090-945c-2333-0aa9-376647e41c56'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003223645304467009,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00018562548000959083,&#92;&quot;hsi_sqr&#92;&quot;:0.000737910649069863,&#92;&quot;vix&#92;&quot;:20.700000762939453,&#92;&quot;us3m&#92;&quot;:0.22,&#92;&quot;MOM&#92;&quot;:-0.015751189272470434,&#92;&quot;DVC&#92;&quot;:0.6643970474560632},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-05&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00018562548000959083,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00015068442917698884,&#92;&quot;hsi_sqr&#92;&quot;:4.2386143933985055e-05,&#92;&quot;vix&#92;&quot;:19.34000015258789,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;MOM&#92;&quot;:-0.016216599084366123,&#92;&quot;DVC&#92;&quot;:-0.45161089321986836},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-06&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00015068442917698884,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0006408528276250122,&#92;&quot;hsi_sqr&#92;&quot;:9.723461343867544e-05,&#92;&quot;vix&#92;&quot;:20.59000015258789,&#92;&quot;us3m&#92;&quot;:0.21,&#92;&quot;MOM&#92;&quot;:-0.04521565910093672,&#92;&quot;DVC&#92;&quot;:0.12974482003884447},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-07&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0006408528276250122,&#92;&quot;rv_w&#92;&quot;:NaN,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003197039522391123,&#92;&quot;hsi_sqr&#92;&quot;:0.000982593081365818,&#92;&quot;vix&#92;&quot;:24.989999771118164,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;MOM&#92;&quot;:-0.076364581718122,&#92;&quot;DVC&#92;&quot;:0.32320766498168396},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-08&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003197039522391123,&#92;&quot;rv_w&#92;&quot;:0.00032384624389948104,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003149123734209432,&#92;&quot;hsi_sqr&#92;&quot;:3.4838730347992906e-05,&#92;&quot;vix&#92;&quot;:27.010000228881836,&#92;&quot;us3m&#92;&quot;:0.2,&#92;&quot;MOM&#92;&quot;:-0.05845273182101263,&#92;&quot;DVC&#92;&quot;:-0.14553913270112062},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-11&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003149123734209432,&#92;&quot;rv_w&#92;&quot;:0.0003223558124943295,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00032985837350241187,&#92;&quot;hsi_sqr&#92;&quot;:0.0007852691776632113,&#92;&quot;vix&#92;&quot;:24.299999237060547,&#92;&quot;us3m&#92;&quot;:0.21,&#92;&quot;MOM&#92;&quot;:-0.04669382354859275,&#92;&quot;DVC&#92;&quot;:-0.27796290525288825},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-12&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00032985837350241187,&#92;&quot;rv_w&#92;&quot;:0.0003512023911928937,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.00047639685630167645,&#92;&quot;hsi_sqr&#92;&quot;:7.967838856305398e-05,&#92;&quot;vix&#92;&quot;:22.469999313354492,&#92;&quot;us3m&#92;&quot;:0.21,&#92;&quot;MOM&#92;&quot;:-0.042109541362621794,&#92;&quot;DVC&#92;&quot;:-0.01409368370530828},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-13&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.00047639685630167645,&#92;&quot;rv_w&#92;&quot;:0.0004163448766178312,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003852411951800013,&#92;&quot;hsi_sqr&#92;&quot;:0.0001266886281250397,&#92;&quot;vix&#92;&quot;:25.219999313354492,&#92;&quot;us3m&#92;&quot;:0.22,&#92;&quot;MOM&#92;&quot;:-0.045612975810693346,&#92;&quot;DVC&#92;&quot;:0.5949498374617264},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-14&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0003852411951800013,&#92;&quot;rv_w&#92;&quot;:0.000365222550128829,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0007322118754465006,&#92;&quot;hsi_sqr&#92;&quot;:3.492989900394491e-05,&#92;&quot;vix&#92;&quot;:23.950000762939453,&#92;&quot;us3m&#92;&quot;:0.25,&#92;&quot;MOM&#92;&quot;:0.017857663990069383,&#92;&quot;DVC&#92;&quot;:-0.21632399150305304},{&#92;&quot;t&#92;&quot;:&#92;&quot;2016-01-15&#92;&quot;,&#92;&quot;symbol&#92;&quot;:&#92;&quot;MSFT&#92;&quot;,&#92;&quot;rv_t&#92;&quot;:0.0007322118754465006,&#92;&quot;rv_w&#92;&quot;:0.00044772413477030677,&#92;&quot;rv_m&#92;&quot;:NaN,&#92;&quot;rv_next&#92;&quot;:0.0003769010374624575,&#92;&quot;hsi_sqr&#92;&quot;:0.00022746217671904527,&#92;&quot;vix&#92;&quot;:27.020000457763672,&#92;&quot;us3m&#92;&quot;:0.23,&#92;&quot;MOM&#92;&quot;:-0.025940287390018746,&#92;&quot;DVC&#92;&quot;:0.27487594558875017}]&quot;' data-total-rows='12840' data-total-columns='11' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;t&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;symbol&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;rv_t&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_w&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_m&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;rv_next&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;hsi_sqr&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;vix&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;us3m&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;MOM&quot;,[&quot;number&quot;,&quot;float64&quot;]],[&quot;DVC&quot;,[&quot;number&quot;,&quot;float64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TTti",
+      "code_hash": "5499904f6d937faa7370c3e8d051fcf0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='TTti-0' random-id='a8843ca5-f484-3d71-cc04-264e62e037c9'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;rows_total&#92;&quot;:12840,&#92;&quot;complete_rows&#92;&quot;:12412,&#92;&quot;assets&#92;&quot;:14,&#92;&quot;first_day&#92;&quot;:&#92;&quot;2016-01-04&#92;&quot;,&#92;&quot;last_day&#92;&quot;:&#92;&quot;2020-02-21&#92;&quot;}]&quot;' data-total-rows='1' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='false' data-page-size='10' data-field-types='[[&quot;rows_total&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;complete_rows&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;assets&quot;,[&quot;integer&quot;,&quot;int64&quot;]],[&quot;first_day&quot;,[&quot;string&quot;,&quot;object&quot;]],[&quot;last_day&quot;,[&quot;string&quot;,&quot;object&quot;]]]' data-show-filters='true' data-show-download='true' data-show-search='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-hidden-columns='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RKFZ",
+      "code_hash": "1f7ce752eafba3960c174da0f8ddc301",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
           }
         }
       ],
