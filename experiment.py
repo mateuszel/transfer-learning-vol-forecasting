@@ -493,10 +493,138 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    only rv_d, rv_w, rv_m for now
-    """)
+def _(
+    compare_feature_set_metrics,
+    compare_metric_tables,
+    compute_prediction_metrics,
+    extended_source_df,
+    extended_target_df,
+    run_rolling_predictions,
+    to_chwy_ext_overall,
+    to_chwy_std_overall,
+    to_crwd_ext_overall,
+    to_crwd_std_overall,
+    trading_sessions,
+):
+    # running predictions, computing metrics, and comparing with Target Only
+    dtw_crwd_std = run_rolling_predictions(
+        mode="dtw",
+        symbol="CRWD",
+        session_dates=trading_sessions,
+        extended_source_df=extended_source_df,
+        extended_target_df=extended_target_df,
+        extended=False,
+        initial_nt=40,
+        refit_freq=5,
+        m=22,
+        dtw_features=["rv_t", "rv_w", "rv_m"],
+        percentile=25,
+    )
+
+    dtw_chwy_std = run_rolling_predictions(
+        mode="dtw",
+        symbol="CHWY",
+        session_dates=trading_sessions,
+        extended_source_df=extended_source_df,
+        extended_target_df=extended_target_df,
+        extended=False,
+        initial_nt=40,
+        refit_freq=5,
+        m=22,
+        dtw_features=["rv_t", "rv_w", "rv_m"],
+        percentile=25,
+    )
+
+    dtw_crwd_ext = run_rolling_predictions(
+        mode="dtw",
+        symbol="CRWD",
+        session_dates=trading_sessions,
+        extended_source_df=extended_source_df,
+        extended_target_df=extended_target_df,
+        extended=True,
+        initial_nt=40,
+        refit_freq=5,
+        m=22,
+        dtw_features=["rv_t", "rv_w", "rv_m"],
+        percentile=25,
+    )
+
+    dtw_chwy_ext = run_rolling_predictions(
+        mode="dtw",
+        symbol="CHWY",
+        session_dates=trading_sessions,
+        extended_source_df=extended_source_df,
+        extended_target_df=extended_target_df,
+        extended=True,
+        initial_nt=40,
+        refit_freq=5,
+        m=22,
+        dtw_features=["rv_t", "rv_w", "rv_m"],
+        percentile=25,
+    )
+
+    dtw_crwd_std_overall, dtw_crwd_std_daily = compute_prediction_metrics(dtw_crwd_std)
+    dtw_crwd_ext_overall, dtw_crwd_ext_daily = compute_prediction_metrics(dtw_crwd_ext)
+
+    dtw_chwy_std_overall, dtw_chwy_std_daily = compute_prediction_metrics(dtw_chwy_std)
+    dtw_chwy_ext_overall, dtw_chwy_ext_daily = compute_prediction_metrics(dtw_chwy_ext)
+
+    dtw_crwd_overall = compare_feature_set_metrics(
+        dtw_crwd_std_overall,
+        dtw_crwd_ext_overall,
+        "DTW",
+    )
+    dtw_chwy_overall = compare_feature_set_metrics(
+        dtw_chwy_std_overall,
+        dtw_chwy_ext_overall,
+        "DTW",
+    )
+
+    dtw_crwd_std_vs_to_overall = compare_metric_tables(
+        dtw_crwd_std_overall,
+        to_crwd_std_overall,
+        "DTW STD",
+        "Target Only STD",
+    )
+    dtw_crwd_ext_vs_to_overall = compare_metric_tables(
+        dtw_crwd_ext_overall,
+        to_crwd_ext_overall,
+        "DTW EXT",
+        "Target Only EXT",
+    )
+    dtw_chwy_std_vs_to_overall = compare_metric_tables(
+        dtw_chwy_std_overall,
+        to_chwy_std_overall,
+        "DTW STD",
+        "Target Only STD",
+    )
+    dtw_chwy_ext_vs_to_overall = compare_metric_tables(
+        dtw_chwy_ext_overall,
+        to_chwy_ext_overall,
+        "DTW EXT",
+        "Target Only EXT",
+    )
+    return dtw_chwy_ext, dtw_chwy_std, dtw_crwd_ext, dtw_crwd_std
+
+
+@app.cell(hide_code=True)
+def _(
+    dtw_chwy_ext,
+    dtw_chwy_std,
+    dtw_crwd_ext,
+    dtw_crwd_std,
+    mo,
+    plot_one_method_predictions,
+):
+    _chart = plot_one_method_predictions(
+        dtw_chwy_std,
+        dtw_chwy_ext,
+        dtw_crwd_std,
+        dtw_crwd_ext,
+        "DTW",
+    )
+
+    mo.hstack([_chart], justify="center")
     return
 
 

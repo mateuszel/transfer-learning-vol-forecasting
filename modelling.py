@@ -529,7 +529,6 @@ def compare_feature_set_metrics(std_metrics, ext_metrics, method_name):
 def get_target_for_dtw(target, current_index, dtw_features, m):
     """
     Inputs:
-        symbol: string - target symbol
         target: pd.DataFrame - observations for target filtered by symbol, sorted by date no index
         current_index: int - the index of the observation used for next prediction
         dtw_featues: list - which features we will use for DTW
