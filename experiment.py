@@ -151,14 +151,16 @@ def _(mo):
 
     As it was mentioned above we want to check how different methods of incorporating source information into the training dataset affect predictive performance.
 
-    We will try to inspect how the predictive performance changes as more target samples are introduced into the training set. In order to do that we will initially include information from $n_T=40$ first trading sessions of a given target asset into every training set considered. After training, we will produce one-day-ahead forecasts for every trading session starting at the 41st one, and ending at the last trading session with known realized variance label. During that process the coefficients in HAR models will be reevaluated every 5 sessions using all the available data up to that point in time.
+    To ensure a fair comparison, all benchmark models will be evaluated over the same out-of-sample period, consisting of the final 50 trading sessions with available realized variance labels for each target asset. We initially consider $n_T = 40$ target observations preceding this evaluation period.
+
+    During the evaluation, the target training sample is expanded as new observations become available, while its starting point remains fixed. The HAR coefficients are reestimated every 5 trading sessions using all observations available for the respective training method at that point in time.
 
     Forecasting performance will be evaluated using the following metrics:
     1. QLIKE
     2. MSE
     3. Relative Loss and Negative Transfer Gap which compare selected model's performance to the benchmark Target Only based model.
 
-    Following the evaluation approach of Teller et al. (2026), we will assess forecasting performance both over the entire out-of-sample period and over consecutive, non-overlapping 20-trading-day evaluation windows. This will allow us to examine how the relative performance of transfer-based methods changes as more target observations become available. Any remaining observations that do not form a complete evaluation window will be included only in the full-period evaluation.
+    Performance will be assessed over the entire 50-session out-of-sample period. Additionally, we will retain individual forecast losses and cumulative average losses to examine the stability of predictive performance over time. This ensures that all methods are evaluated over identical forecasting dates rather than different market periods.
     """)
     return
 
@@ -225,31 +227,20 @@ def _(
         refit_freq=5,
     )
 
-    to_crwd_std_overall, to_crwd_std_windows = compute_prediction_metrics(target_only_crwd_std)
-    to_crwd_ext_overall, to_crwd_ext_windows = compute_prediction_metrics(target_only_crwd_ext)
+    to_crwd_std_overall, to_crwd_std_daily = compute_prediction_metrics(target_only_crwd_std)
+    to_crwd_ext_overall, to_crwd_ext_daily = compute_prediction_metrics(target_only_crwd_ext)
 
-    to_chwy_std_overall, to_chwy_std_windows = compute_prediction_metrics(target_only_chwy_std)
-    to_chwy_ext_overall, to_chwy_ext_windows = compute_prediction_metrics(target_only_chwy_ext)
+    to_chwy_std_overall, to_chwy_std_daily = compute_prediction_metrics(target_only_chwy_std)
+    to_chwy_ext_overall, to_chwy_ext_daily = compute_prediction_metrics(target_only_chwy_ext)
 
     to_crwd_overall = compare_feature_set_metrics(
         to_crwd_std_overall,
         to_crwd_ext_overall,
         "Target Only",
     )
-    to_crwd_windows = compare_feature_set_metrics(
-        to_crwd_std_windows,
-        to_crwd_ext_windows,
-        "Target Only",
-    )
-
     to_chwy_overall = compare_feature_set_metrics(
         to_chwy_std_overall,
         to_chwy_ext_overall,
-        "Target Only",
-    )
-    to_chwy_windows = compare_feature_set_metrics(
-        to_chwy_std_windows,
-        to_chwy_ext_windows,
         "Target Only",
     )
     return (
@@ -258,13 +249,9 @@ def _(
         target_only_crwd_ext,
         target_only_crwd_std,
         to_chwy_ext_overall,
-        to_chwy_ext_windows,
         to_chwy_std_overall,
-        to_chwy_std_windows,
         to_crwd_ext_overall,
-        to_crwd_ext_windows,
         to_crwd_std_overall,
-        to_crwd_std_windows,
     )
 
 
@@ -299,13 +286,9 @@ def _(
     extended_target_df,
     run_rolling_predictions,
     to_chwy_ext_overall,
-    to_chwy_ext_windows,
     to_chwy_std_overall,
-    to_chwy_std_windows,
     to_crwd_ext_overall,
-    to_crwd_ext_windows,
     to_crwd_std_overall,
-    to_crwd_std_windows,
     trading_sessions,
 ):
     # running predictions, computing metrics, and comparing with Target Only
@@ -353,27 +336,20 @@ def _(
         refit_freq=5,
     )
 
-    so_crwd_std_overall, so_crwd_std_windows = compute_prediction_metrics(source_only_crwd_std)
-    so_crwd_ext_overall, so_crwd_ext_windows = compute_prediction_metrics(source_only_crwd_ext)
+    so_crwd_std_overall, so_crwd_std_daily = compute_prediction_metrics(source_only_crwd_std)
+    so_crwd_ext_overall, so_crwd_ext_daily = compute_prediction_metrics(source_only_crwd_ext)
 
-    so_chwy_std_overall, so_chwy_std_windows = compute_prediction_metrics(source_only_chwy_std)
-    so_chwy_ext_overall, so_chwy_ext_windows = compute_prediction_metrics(source_only_chwy_ext)
+    so_chwy_std_overall, so_chwy_std_daily = compute_prediction_metrics(source_only_chwy_std)
+    so_chwy_ext_overall, so_chwy_ext_daily = compute_prediction_metrics(source_only_chwy_ext)
 
     so_crwd_overall = compare_feature_set_metrics(so_crwd_std_overall, so_crwd_ext_overall, "Source Only")
-    so_crwd_windows = compare_feature_set_metrics(so_crwd_std_windows, so_crwd_ext_windows, "Source Only")
-
     so_chwy_overall = compare_feature_set_metrics(so_chwy_std_overall, so_chwy_ext_overall, "Source Only")
-    so_chwy_windows = compare_feature_set_metrics(so_chwy_std_windows, so_chwy_ext_windows, "Source Only")
 
     so_crwd_std_vs_to_overall = compare_metric_tables(so_crwd_std_overall, to_crwd_std_overall, "Source Only STD", "Target Only STD")
-    so_crwd_std_vs_to_windows = compare_metric_tables(so_crwd_std_windows, to_crwd_std_windows, "Source Only STD", "Target Only STD")
     so_crwd_ext_vs_to_overall = compare_metric_tables(so_crwd_ext_overall, to_crwd_ext_overall, "Source Only EXT", "Target Only EXT")
-    so_crwd_ext_vs_to_windows = compare_metric_tables(so_crwd_ext_windows, to_crwd_ext_windows, "Source Only EXT", "Target Only EXT")
 
     so_chwy_std_vs_to_overall = compare_metric_tables(so_chwy_std_overall, to_chwy_std_overall, "Source Only STD", "Target Only STD")
-    so_chwy_std_vs_to_windows = compare_metric_tables(so_chwy_std_windows, to_chwy_std_windows, "Source Only STD", "Target Only STD")
     so_chwy_ext_vs_to_overall = compare_metric_tables(so_chwy_ext_overall, to_chwy_ext_overall, "Source Only EXT", "Target Only EXT")
-    so_chwy_ext_vs_to_windows = compare_metric_tables(so_chwy_ext_windows, to_chwy_ext_windows, "Source Only EXT", "Target Only EXT")
     return (
         source_only_chwy_ext,
         source_only_chwy_std,
@@ -413,13 +389,9 @@ def _(
     extended_target_df,
     run_rolling_predictions,
     to_chwy_ext_overall,
-    to_chwy_ext_windows,
     to_chwy_std_overall,
-    to_chwy_std_windows,
     to_crwd_ext_overall,
-    to_crwd_ext_windows,
     to_crwd_std_overall,
-    to_crwd_std_windows,
     trading_sessions,
 ):
     # running predictions, computing metrics, and comparing with Target Only
@@ -467,27 +439,34 @@ def _(
         refit_freq=5,
     )
 
-    naive_crwd_std_overall, naive_crwd_std_windows = compute_prediction_metrics(naive_crwd_std)
-    naive_crwd_ext_overall, naive_crwd_ext_windows = compute_prediction_metrics(naive_crwd_ext)
+    naive_crwd_std_overall, naive_crwd_std_daily = compute_prediction_metrics(naive_crwd_std)
+    naive_crwd_ext_overall, naive_crwd_ext_daily = compute_prediction_metrics(naive_crwd_ext)
 
-    naive_chwy_std_overall, naive_chwy_std_windows = compute_prediction_metrics(naive_chwy_std)
-    naive_chwy_ext_overall, naive_chwy_ext_windows = compute_prediction_metrics(naive_chwy_ext)
+    naive_chwy_std_overall, naive_chwy_std_daily = compute_prediction_metrics(naive_chwy_std)
+    naive_chwy_ext_overall, naive_chwy_ext_daily = compute_prediction_metrics(naive_chwy_ext)
 
     naive_crwd_overall = compare_feature_set_metrics(naive_crwd_std_overall, naive_crwd_ext_overall, "Naive Pooling")
-    naive_crwd_windows = compare_feature_set_metrics(naive_crwd_std_windows, naive_crwd_ext_windows, "Naive Pooling")
-
     naive_chwy_overall = compare_feature_set_metrics(naive_chwy_std_overall, naive_chwy_ext_overall, "Naive Pooling")
-    naive_chwy_windows = compare_feature_set_metrics(naive_chwy_std_windows, naive_chwy_ext_windows, "Naive Pooling")
 
-    naive_crwd_std_vs_to_overall = compare_metric_tables(naive_crwd_std_overall, to_crwd_std_overall, "Naive Pooling STD", "Target Only STD")
-    naive_crwd_std_vs_to_windows = compare_metric_tables(naive_crwd_std_windows, to_crwd_std_windows, "Naive Pooling STD", "Target Only STD")
-    naive_crwd_ext_vs_to_overall = compare_metric_tables(naive_crwd_ext_overall, to_crwd_ext_overall, "Naive Pooling EXT", "Target Only EXT")
-    naive_crwd_ext_vs_to_windows = compare_metric_tables(naive_crwd_ext_windows, to_crwd_ext_windows, "Naive Pooling EXT", "Target Only EXT")
+    naive_crwd_std_vs_to_overall = compare_metric_tables(
+        naive_crwd_std_overall, to_crwd_std_overall,
+        "Naive Pooling STD", "Target Only STD"
+    )
 
-    naive_chwy_std_vs_to_overall = compare_metric_tables(naive_chwy_std_overall, to_chwy_std_overall, "Naive Pooling STD", "Target Only STD")
-    naive_chwy_std_vs_to_windows = compare_metric_tables(naive_chwy_std_windows, to_chwy_std_windows, "Naive Pooling STD", "Target Only STD")
-    naive_chwy_ext_vs_to_overall = compare_metric_tables(naive_chwy_ext_overall, to_chwy_ext_overall, "Naive Pooling EXT", "Target Only EXT")
-    naive_chwy_ext_vs_to_windows = compare_metric_tables(naive_chwy_ext_windows, to_chwy_ext_windows, "Naive Pooling EXT", "Target Only EXT")
+    naive_crwd_ext_vs_to_overall = compare_metric_tables(
+        naive_crwd_ext_overall, to_crwd_ext_overall,
+        "Naive Pooling EXT", "Target Only EXT"
+    )
+
+    naive_chwy_std_vs_to_overall = compare_metric_tables(
+        naive_chwy_std_overall, to_chwy_std_overall,
+        "Naive Pooling STD", "Target Only STD"
+    )
+
+    naive_chwy_ext_vs_to_overall = compare_metric_tables(
+        naive_chwy_ext_overall, to_chwy_ext_overall,
+        "Naive Pooling EXT", "Target Only EXT"
+    )
     return naive_chwy_ext, naive_chwy_std, naive_crwd_ext, naive_crwd_std
 
 

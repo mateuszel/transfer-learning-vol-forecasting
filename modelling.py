@@ -42,15 +42,16 @@ def get_previous_session_date(current_date, session_dates):
 
     return previous_dates.max()
 
-def get_target_only_training_data(symbol, nt, extended_target_df, extended):
+def get_target_only_training_data(symbol, nt, extended_target_df, extended, start_idx):
     """
     Inputs:
         symbol: string - name of the symbol for which we want to get target only training data
-        nt: int - number of training observations
+        nt: int - number of training sessions (observations) before dropping NaN's
         extended_target_df: pd.DataFrame - contains all observations for both target assets
         extended: bool - True if the returned object should contain extended HAR features
+        start_idx: int - Index of the first observation we allow for training 
     Outputs:
-        pd.DataFrame - contains first nt observations for the given target asset, with NaN's dropped
+        pd.DataFrame - contains first nt observations for the given target asset starting at start_idx, with NaN's dropped
         additionally a column for a constant is added
         we choose nt-1 because this also contains labels so if we got all nt we would leak information about nt+1 label
         pd.Series - contains labels for the observations from the other DataFrame
@@ -63,7 +64,7 @@ def get_target_only_training_data(symbol, nt, extended_target_df, extended):
 
     # filter to only have first nt observations
     # data is assumed to be sorted by date, hence we can just do this
-    df = df.head(nt-1)
+    df = df.iloc[start_idx:start_idx+nt]
 
     # get rid of the NaN's
     df = df.dropna()
@@ -115,7 +116,7 @@ def get_source_only_training_data(forecast_date, session_dates, extended_source_
     
     return df.drop(columns=["rv_next"]), df["rv_next"]
 
-def get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended):
+def get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended, start_idx):
     """
     Inputs:
         symbol: string - name of the symbol for which we want to get target only training data
@@ -126,13 +127,14 @@ def get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, ex
         extended_source_df: pd.DataFrame - dataframe of all source data
         extended_target_df: pd.DataFrame - contains all observations for both target assets
         extended: bool - True if we want the extended HAR features
+        start_idx: int - Index of the first observation we allow for training
     Outputs:
         pd.DataFrame - pooled source and target training data without any information about forecast_date data
         pd.Series - labels for the above training dataset
     """
 
     # get the source only and target only datasets
-    X_target, y_target = get_target_only_training_data(symbol, nt, extended_target_df, extended)
+    X_target, y_target = get_target_only_training_data(symbol, nt, extended_target_df, extended, start_idx)
     X_source, y_source = get_source_only_training_data(forecast_date, session_dates, extended_source_df, extended)
 
     # combine the two datasets, they should have the exact same columns
@@ -173,7 +175,7 @@ def predict_har_model(model, X_test, test_dates, session_dates):
 
     return pd.Series(predictions.to_numpy(), index=pd.DatetimeIndex(next_dates), name="rv_pred")
 
-def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5):
+def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5, test_size=50):
     """
     Inputs:
         mode: string - "target_only" or "source_only" or "naive_pooling" 
@@ -192,17 +194,16 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
     predictions = []
 
     # get the target data and dates available for the target
-    target = extended_target_df[extended_target_df["symbol"] == symbol].sort_values("t").reset_index(drop=True)
+    target = extended_target_df[extended_target_df["symbol"] == symbol].sort_values("t").dropna(subset=["rv_next"]).reset_index(drop=True)
     target_dates = target["t"].tolist()
 
-    # the first prediction we want to make is based on the data for the initial_nt'th session
-    # so first date is target_dates[initial_nt-1]
-    # for the training we use nt-1 first trading sessions
+    # we need to find the range of the observations we will be working with first
+    first_test_idx = len(target) - test_size # this is the observation used for the first forecast
+    start_idx = first_test_idx - initial_nt # first target training observation index, we use [start_idx, start_idx+nt-1) training
     
     refit_id = 0 # used to track when we are using which model over time 
 
-    for forecast_step, current_date in enumerate(target_dates[initial_nt-1: ]):
-
+    for forecast_step, current_date in enumerate(target_dates[first_test_idx:]):
         # we make forecast for this date
         forecast_date = get_next_session_date(current_date, session_dates)
 
@@ -215,11 +216,11 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
         if forecast_step % refit_freq == 0:
             # prepare data if refit needed using leakage free methods
             if mode == "target_only":
-                X_train, y_train = get_target_only_training_data(symbol, nt, extended_target_df, extended)
+                X_train, y_train = get_target_only_training_data(symbol, nt, extended_target_df, extended, start_idx)
             elif mode == "source_only":
                 X_train, y_train = get_source_only_training_data(forecast_date, session_dates, extended_source_df, extended)
             elif mode == "naive_pooling":
-                X_train, y_train = get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended)
+                X_train, y_train = get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended, start_idx)
         
             # refit
             model = fit_har_model(X_train, y_train)
@@ -228,7 +229,7 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
             n_train = len(y_train)
 
         # get current row in order to make a prediction
-        current_row = target.iloc[[initial_nt-1 + forecast_step]]
+        current_row = target.iloc[[first_test_idx + forecast_step]]
 
         # prepare the correct columns
         X_test = current_row.drop(columns=["t", "symbol", "rv_next"])
@@ -245,6 +246,7 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
             "y_true": current_row["rv_next"].iloc[0],
             "y_pred": max(1e-8, y_pred.iloc[0]),
             "nt": nt,
+            "initial_nt": initial_nt,
             "refit_id": refit_id,
             "n_train": n_train,
             "clipped": y_pred.iloc[0] < 1e-8
@@ -272,46 +274,37 @@ def compute_qlike(y_true, y_pred):
         """
     return (y_true / y_pred - np.log(y_true / y_pred) - 1).mean()
 
-def compute_prediction_metrics(predictions, window_size=20):
+def compute_prediction_metrics(predictions):
     """
     Inputs:
         predictions: pd.DataFrame - result of run_rolling_predictions(...)
-        window_size: int - length of one window that we compute metrics on
     Outputs:
         pd.DataFrame - one row dataframe that aggregates metrics over the entire evaluation period (all predictions)
         pd.DataFrame - each row defines metric for one evaluation window
     """
-    df = predictions.copy()
+    df = predictions.sort_values("forecast_date").copy()
 
     # compute squared error and QLIKE for every prediction
-    df["sq_error"] = (df["y_true"] - df["y_pred"]) ** 2
+    df["mse"] = (df["y_true"] - df["y_pred"]) ** 2
     df["qlike"] = (df["y_true"] / df["y_pred"] - np.log(df["y_true"] / df["y_pred"]) - 1)
 
-    # first df to return
-    overall_result = pd.DataFrame([{
-        "symbol": df["symbol"].loc[0],
+    # comptue cumulative losses per metric over the prediction period
+    df["n_forecasts"] = np.arange(1, len(df)+1)
+    df["cumulative_mse"] = df["mse"].cumsum() / df["n_forecasts"]
+    df["cumulative_qlike"] = df["qlike"].cumsum() / df["n_forecasts"]
+
+    # get the neccessary columns only
+    df = df[["symbol", "forecast_date", "n_forecasts", "mse", "qlike", "cumulative_mse", "cumulative_qlike"]].reset_index(drop=True)
+
+    # overall metrics from the entire period
+    overall_metrics = pd.DataFrame([{
+        "symbol": df["symbol"].iloc[0],
         "n_forecasts": len(df),
-        "mse": compute_mse(df["y_true"], df["y_pred"]),
-        "qlike": compute_qlike(df["y_true"], df["y_pred"])
+        "mse": df["mse"].mean(),
+        "qlike": df["qlike"].mean()
     }])
 
-    # get the 'windowed' df to return
-
-    # first set window_id for every observation
-    df["window_id"] = [i // window_size + 1 for i in range(len(df))]
-
-    # for each window compute the mse and qlike
-    grouped = df.groupby("window_id").apply(
-        lambda g: pd.Series({
-            "mse": compute_mse(g["y_true"], g["y_pred"]),
-            "qlike": compute_qlike(g["y_true"], g["y_pred"]),
-            "n_forecasts": len(g)
-        })
-    )
-    grouped = grouped[grouped["n_forecasts"] == window_size].reset_index()
-    grouped["symbol"] = df["symbol"].loc[0]
-    
-    return overall_result, grouped
+    return overall_metrics, df
 
 def plot_one_method_predictions(predictions_target1_std, predictions_target1_ext, predictions_target2_std, predictions_target2_ext, method):
     """
@@ -391,13 +384,12 @@ def compare_metric_tables(model_metrics, benchmark_metrics, method_name, benchma
         benchmark_name: string - identifier / name of the benchmark
     Outputs:
         pd.DataFrame - comparison of the two models with columns:
-        symbol, window_id  (if not none), method, benchmark, model_mse, benchmark_mse,
+        symbol, method, benchmark, model_mse, benchmark_mse,
         model_qlike, benchmark_qlike, relative_mse, relative_qlike, 
         mse_gap, qlike_gap
     """
     # clean up dataframes and extract some data
     symbol = model_metrics["symbol"].loc[0]
-    is_windowed = "window_id" in model_metrics.columns
     
     model_metrics = model_metrics.rename(columns={
             "mse": f"{method_name}-MSE",
@@ -413,13 +405,7 @@ def compare_metric_tables(model_metrics, benchmark_metrics, method_name, benchma
         })
     benchmark_metrics = benchmark_metrics.drop(columns=["symbol"])
     
-    # check whether we got the overall_results or window_results
-    if is_windowed:
-        # window results
-        merged = model_metrics.merge(benchmark_metrics, on="window_id")
-    else:
-        # overall_results
-        merged = pd.concat([model_metrics, benchmark_metrics], axis=1)
+    merged = pd.concat([model_metrics, benchmark_metrics], axis=1)
 
     # compute the rest of the metrics
     merged["relative_mse"] = merged[f"{method_name}-MSE"] / merged[f"{benchmark_name}-MSE"]
@@ -432,31 +418,12 @@ def compare_metric_tables(model_metrics, benchmark_metrics, method_name, benchma
     merged["method"] = method_name
     merged["benchmark"] = benchmark_name
     
-    if "window_id" not in merged.columns:
-        return merged[
-            [
-                "symbol",
-                "method",
-                "benchmark",
-                f"{method_name}-n_forecasts",
-                f"{method_name}-MSE",
-                f"{benchmark_name}-MSE",
-                "relative_mse",
-                "mse_gap",
-                f"{method_name}-QLIKE",
-                f"{benchmark_name}-QLIKE",
-                "relative_qlike",
-                "qlike_gap",
-            ]
-        ]
     return merged[
         [
             "symbol",
-            "window_id",
             "method",
             "benchmark",
             f"{method_name}-n_forecasts",
-            f"{benchmark_name}-n_forecasts",
             f"{method_name}-MSE",
             f"{benchmark_name}-MSE",
             "relative_mse",
