@@ -32,7 +32,7 @@ def _():
         compute_prediction_metrics,
         plot_one_method_predictions,
         compare_metric_tables,
-        compare_feature_set_metrics
+        compare_feature_set_metrics,
     )
 
     from preprocessing import build_trading_sessions
@@ -488,6 +488,14 @@ def _(
 def _(mo):
     mo.md(r"""
     ### DTW-based transfer
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    only rv_d, rv_w, rv_m for now
     """)
     return
 

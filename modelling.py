@@ -2,6 +2,7 @@ import pandas as pd
 import statsmodels.api as sm
 import numpy as np
 import altair as alt
+from tslearn.metrics import dtw
 
 def get_next_session_date(current_date, session_dates):
     """
@@ -147,7 +148,7 @@ def fit_har_model(X_train, y_train):
     """
     Inputs:
         X_train: pd.DataFrame - training dataset, with constant column. output of get_target_only_training_data(),
-        get_source_only_training_data(), get_naive_pooling_training_data()
+        get_source_only_training_data(), get_naive_pooling_training_data(), get_dtw_training_data()
         y_train: pd.Series - labels for the X_train dataset
     Outputs:
         RegressionResultsWrapper - fitted OLS model using statsmodels.api
@@ -175,7 +176,7 @@ def predict_har_model(model, X_test, test_dates, session_dates):
 
     return pd.Series(predictions.to_numpy(), index=pd.DatetimeIndex(next_dates), name="rv_pred")
 
-def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5, test_size=50):
+def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5, test_size=50, m=22, dtw_features=["rv_t", "rv_w", "rv_m"], percentile=25):
     """
     Inputs:
         mode: string - "target_only" or "source_only" or "naive_pooling" 
@@ -187,6 +188,8 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
         initial_nt: int - how many trading sessions of the target we allow for training, first prediction is based on
         the data from exactly initial_nt'th session
         refit_freq: int - tells us how often we refit the model to include new data, 
+        m: int - interval size for DTW if needed
+        percentile: int - percentile of the closest DTW observations to add to training set
     Outputs:
         pd.DataFrame - contains prediction and diagnostics data, exact columns should be studied below
     """
@@ -221,7 +224,15 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
                 X_train, y_train = get_source_only_training_data(forecast_date, session_dates, extended_source_df, extended)
             elif mode == "naive_pooling":
                 X_train, y_train = get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended, start_idx)
-        
+            elif mode == "dtw":
+                dtw_target = get_target_for_dtw(symbol, extended_target_df, first_test_idx+forecast_step, m)
+                dtw_source = get_source_for_dtw(forecast_date, session_dates, extended_source_df)
+
+                target_interval, og_intervals, dtw_intervals = construct_intervals(dtw_target, dtw_source, extended, dtw_features, m)
+                selected_ids = compute_dtw(target_interval, dtw_intervals, percentile)
+
+                X_train, y_train = get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids)
+
             # refit
             model = fit_har_model(X_train, y_train)
             # both below mostly just for diagnostics
@@ -515,3 +526,145 @@ def compare_feature_set_metrics(std_metrics, ext_metrics, method_name):
         ]
     ]
 
+def get_target_for_dtw(symbol, extended_target_df, current_index, dtw_features, m):
+    """
+    Inputs:
+        symbol: string - target symbol
+        target_df: pd.DataFrame - contains all observations for both target assets
+        current_index: int - the index of the observation used for next prediction
+        dtw_featues: list - which features we will use for DTW
+        m: int - length of each interval in DTW
+    Outputs:
+        pd.DataFrame: Dataframe with the target interval for the DTW of length m. 
+        If a complete interval of length m can't be created then None
+    """
+
+    # access curent observation and all past observations
+    target_history = extended_target_df.iloc[:current_index].tail(m-1) # most recent m-1 observations
+    current_row = extended_target_df.iloc[[current_index]] # mth observation
+
+    target_interval = pd.concat([target_history, current_row], ignore_index=True)
+
+    if len(target_interval) != m:
+        return None
+    if target_interval[dtw_features].isna().any().any():
+        return None
+
+    return target_interval.drop(columns=["symbol", "t"])
+
+def get_source_for_dtw(forecast_date, session_dates, extended_source_df):
+    """
+    Inputs:
+        forecast_date: Date - date of the closest forecast, we only take prior to this point
+        session_dates: pd.DataFrame - contains dates of all trading sessions,
+        in the format returned by build_trading_sessions()
+        extended_source_df: pd.DataFrame - dataframe of all source data
+    Outputs:
+        pd.DataFrame - all source data eligible for creation of intervals
+    """
+
+    cutoff_date = get_previous_session_date(forecast_date, session_dates)
+    return extended_source_df[extended_source_df["t"] < cutoff_date].copy().reset_index(drop=True).drop(columns=["t"])
+
+def construct_intervals(dtw_target, dtw_source, extended, dtw_features, m):
+    """
+    Inputs:
+        dtw_target: pd.DataFrame - output of get_target_for_dtw(...), target interval
+        dtw_source: pd.DataFrame - output of get_source_for_dtw(...), all data for source
+        extended: bool - whether extended HAR features should be included in the final dataset
+        dtw_featues: list - which features should be considered in when computing DTW distance
+        m: int - length of a single interval
+    Outputs:
+        pd.DataFrame - target interval ready for DTW with only the dtw_features columns
+        dict[int, pd.DataFrame] - dictionary window_id -> source_interval with all training features  and label, with symbol column
+        dict[int, pd.DataFrame] - dictionary window_id -> source_dtw_interval with only dtw_features as columns, without labels
+    """
+    #safeguard in case we cant construct the target interval for dtw
+    if dtw_target is None:
+        raise Exception("Not enough non-NaN observations for DTW. Try bigger nt")
+    
+    # first prepare target data for return
+    target_interval = dtw_target[dtw_features]
+
+    # now prepare source
+    if extended:
+        source_df = dtw_source.copy()
+    else:
+        source_df = dtw_source.drop(columns=["hsi_sqr", "vix", "us3m", "MOM", "DVC"])
+    
+    # group source by symbol and sort by date again within the symbol to be safe
+    grouped = source_df.groupby("symbol")
+
+    dtw_intervals = {} # intervals prepped for dtw along with their id
+    og_intervals = {} # id -> original interval (to restore all features)
+    window_id = 0 # global window counter for retrieval
+    
+    for symbol, asset_df in grouped:
+        # drop uneven data from the begining
+        remainder = len(asset_df) % m # this many rows from the start we have to drop
+        asset_df = asset_df.iloc[remainder:].reset_index(drop=True)
+
+        # create intervals
+        for start in range(0, len(asset_df), m):
+            original_interval = asset_df.iloc[start:start+m].copy()
+
+            # not possible to happen hopefully but still to be safe
+            if len(original_interval) < m:
+                continue
+
+            # we have something missing - gets discarded
+            if original_interval.isna().any().any():
+                continue
+
+            # we have full complete interval
+            dtw_intervals[window_id] = original_interval[dtw_features].copy()
+            og_intervals[window_id] = original_interval.copy()
+
+            # update window counter
+            window_id += 1
+
+    return target_interval, og_intervals, dtw_intervals
+
+def compute_dtw(target_interval, dtw_intervals, percentile):
+    """
+    Inputs:
+        target_interval: pd.DataFrame - pd.DataFrame - target interval ready for DTW with only the dtw_features columns, output of construct_intervals(...)
+        dtw_intervals: dict[int, pd.DataFrame] - dict[int, pd.DataFrame] - dictionary window_id -> source_dtw_interval with only dtw_features as columns, without labels, output of construct_intervals(...)
+    Outputs:
+        list - list of window_id's that are in the specified percentile
+    """
+    # compute all distances
+    distances = {
+        window_id: dtw(target_interval.to_numpy(), source_interval.to_numpy())
+        for window_id, source_interval in dtw_intervals.items()
+    }
+
+    # find the threshold corresponding to the percentile
+    threshold = np.percentile(list(distances.values()), percentile)
+
+    return [window_id for window_id, distance in distances.items() if distance <= threshold]
+
+def get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids):
+    """
+    Inputs:
+        symbol, nt, extended_target_df, extended, start_idx - same inputs as for get_target_only_training_data(...)
+        og_intervals: dict[int, pd.DataFrame] - dictionary window_id -> source_interval with all training features  and label, with symbol column
+        selected_ids: list - output of compute_dtw(...) contains window_id's of all selected intervals
+    Outputs:
+    
+    """
+    # get target only data
+    X_target, y_target = get_target_only_training_data(symbol, nt, extended_target_df, extended, start_idx) # contains constant
+
+    # get dtw source data
+    source_df = pd.concat([og_intervals[window_id] for window_id in selected_ids]).reset_index(drop=True)
+
+    # drop symbol column and add constant column
+    source_df = source_df.drop(columns=["symbol"])
+    source_df = sm.add_constant(source_df)
+
+    # split into X and y
+    X_train = pd.concat([source_df.drop(columns=["rv_next"]), X_target]).reset_index(drop=True)
+    y_train = pd.concat([source_df["rv_next"], y_target]).reset_index(drop=True)
+    
+    return X_train, y_train
