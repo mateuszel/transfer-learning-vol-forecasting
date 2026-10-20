@@ -225,7 +225,7 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
             elif mode == "naive_pooling":
                 X_train, y_train = get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended, start_idx)
             elif mode == "dtw":
-                dtw_target = get_target_for_dtw(symbol, extended_target_df, first_test_idx+forecast_step, m)
+                dtw_target = get_target_for_dtw(target, first_test_idx+forecast_step, dtw_features, m)
                 dtw_source = get_source_for_dtw(forecast_date, session_dates, extended_source_df)
 
                 target_interval, og_intervals, dtw_intervals = construct_intervals(dtw_target, dtw_source, extended, dtw_features, m)
@@ -526,11 +526,11 @@ def compare_feature_set_metrics(std_metrics, ext_metrics, method_name):
         ]
     ]
 
-def get_target_for_dtw(symbol, extended_target_df, current_index, dtw_features, m):
+def get_target_for_dtw(target, current_index, dtw_features, m):
     """
     Inputs:
         symbol: string - target symbol
-        target_df: pd.DataFrame - contains all observations for both target assets
+        target: pd.DataFrame - observations for target filtered by symbol, sorted by date no index
         current_index: int - the index of the observation used for next prediction
         dtw_featues: list - which features we will use for DTW
         m: int - length of each interval in DTW
@@ -540,8 +540,8 @@ def get_target_for_dtw(symbol, extended_target_df, current_index, dtw_features, 
     """
 
     # access curent observation and all past observations
-    target_history = extended_target_df.iloc[:current_index].tail(m-1) # most recent m-1 observations
-    current_row = extended_target_df.iloc[[current_index]] # mth observation
+    target_history = target.iloc[:current_index].tail(m-1) # most recent m-1 observations
+    current_row = target.iloc[[current_index]] # mth observation
 
     target_interval = pd.concat([target_history, current_row], ignore_index=True)
 
