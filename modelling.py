@@ -667,3 +667,88 @@ def get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, o
     y_train = pd.concat([source_df["rv_next"], y_target]).reset_index(drop=True)
     
     return X_train, y_train
+
+def run_benchmark_grid(session_dates, extended_source_df, extended_target_df, nt_grid=(40, 60, 80, 100, 120), symbols=("CHWY", "CRWD"), refit_freq=5, test_size=50):
+    """
+    Inputs:
+        session_dates: pd.DataFrame - contains dates of all trading sessions,
+        in the format returned by build_trading_sessions()
+        extended_source_df: pd.DataFrame - dataframe containing all source
+        asset observations
+        extended_target_df: pd.DataFrame - dataframe containing observations
+        for all target assets
+        nt_grid: iterable[int] - numbers of target observations available at
+        the beginning of the evaluation period
+        symbols: iterable[str] - symbols of the target assets to evaluate
+        refit_freq: int - number of trading sessions between model refits
+        test_size: int - number of out-of-sample forecasts for each target
+    Outputs:
+        pd.DataFrame - long-format benchmark results with one row for each
+        combination of target asset, target-history length, feature set and
+        training method. The dataframe contains raw MSE and QLIKE together
+        with their relative values compared to Target Only using the same
+        target asset, target-history length and feature set.
+    """
+    _results = []
+    _methods = {
+        "Target Only": "target_only",
+        "Source Only": "source_only",
+        "Naive Pooling": "naive_pooling",
+    }
+
+    for symbol in symbols:
+        for nt in nt_grid:
+            for extended, features in [(False, "STD"), (True, "EXT")]:
+                _metrics = {}
+                for method_name, mode in _methods.items():
+                    _predictions = run_rolling_predictions(
+                        mode=mode,
+                        symbol=symbol,
+                        session_dates=session_dates,
+                        extended_source_df=extended_source_df,
+                        extended_target_df=extended_target_df,
+                        extended=extended,
+                        initial_nt=nt,
+                        refit_freq=refit_freq,
+                        test_size=test_size,
+                    )
+
+                    _overall_metrics, _daily_metrics = compute_prediction_metrics(
+                        _predictions
+                    )
+                    _metrics[method_name] = _overall_metrics.iloc[0]
+
+                _target_mse = _metrics["Target Only"]["mse"]
+                _target_qlike = _metrics["Target Only"]["qlike"]
+
+                for method_name, _method_metrics in _metrics.items():
+                    _results.append(
+                        {
+                            "symbol": symbol,
+                            "nT": nt,
+                            "features": features,
+                            "method": method_name,
+                            "mse": _method_metrics["mse"],
+                            "qlike": _method_metrics["qlike"],
+                            "relative_mse": (
+                                _method_metrics["mse"] / _target_mse
+                            ),
+                            "relative_qlike": (
+                                _method_metrics["qlike"] / _target_qlike
+                            ),
+                        }
+                    )
+
+    return pd.DataFrame(
+        _results,
+        columns=[
+            "symbol",
+            "nT",
+            "features",
+            "method",
+            "mse",
+            "qlike",
+            "relative_mse",
+            "relative_qlike",
+        ],
+    )
