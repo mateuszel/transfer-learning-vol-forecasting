@@ -3,6 +3,8 @@ import statsmodels.api as sm
 import numpy as np
 import altair as alt
 from tslearn.metrics import dtw
+from sklearn.metrics.pairwise import rbf_kernel
+from scipy.spatial.distance import cdist
 
 def get_next_session_date(current_date, session_dates):
     """
@@ -752,3 +754,152 @@ def run_benchmark_grid(session_dates, extended_source_df, extended_target_df, nt
             "relative_qlike",
         ],
     )
+
+def get_no_label_dtw(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - contains all observations for both target assets  
+        trading_sessions: pd.DataFrame - contains dates of all trading sessions,
+        in the format returned by build_trading_sessions(...)
+        symbol: string - name of the symbol for which we want to get target only training data
+        dtw_featues: list - which features should be considered in when computing DTW distance
+        m: int - length of a single interval
+        percentile: int - percentile of the closest DTW observations to add to training set
+    Outputs:
+        X_all: pd.DataFrame - output of get_source_for_dtw(...) - contains all source training data
+        X_dtw: pd.DataFrame - constructed from construct_intervals(...) contains all training data selected by dtw
+        X_local: pd.DataFrame - contains last 22 target observations before the test period, used as a reference for dtw
+        contains the first observation from test aswell 
+        X_oos: pd.DataFrame - contains all of test target observations (50)
+    """
+    # get the target interval of length m
+    target = extended_target_df[extended_target_df["symbol"] == symbol].dropna(subset='rv_next').reset_index(drop=True)
+
+    first_test_idx = len(target) - 50 # features from this index are used in forecast of the first oos test
+    current_date = target.loc[first_test_idx, "t"]
+    first_forecast_date = get_next_session_date(current_date, trading_sessions) # the date of the first forecast
+
+    X_local = get_target_for_dtw(target, first_test_idx, dtw_features, m)
+    X_oos = target.iloc[first_test_idx:][dtw_features]
+    X_all = get_source_for_dtw(first_forecast_date, trading_sessions, extended_source_df)
+
+    X_local, og_intervals, dtw_intervals = construct_intervals(X_local, X_all, False, dtw_features, m)
+    selected_ids = compute_dtw(X_local, dtw_intervals, percentile)
+    X_dtw = pd.concat([og_intervals[_id] for _id in selected_ids]).reset_index(drop=True)[dtw_features]
+    X_all = X_all[dtw_features]
+
+    return X_all, X_dtw, X_local, X_oos
+
+def mean_discrepancy(df1, df2):
+    """
+    Inputs:
+        df1: pd.DataFrame - contains observations sampled from the first distribution that have already been filtered in terms of dates
+        and only has columns rv_t, rv_w, rv_m
+        df2: pd.DataFrame - same as above, but for the other distribution
+    Outputs:
+        float: The mean discrepancy value
+    """
+    return np.sqrt(np.sum((df1.mean() - df2.mean())**2))
+
+def covariance_discrepancy(df1, df2):
+    """
+    Inputs:
+        df1: pd.DataFrame - contains observations sampled from the first distribution that have already been filtered in terms of dates
+        and only has columns rv_t, rv_w, rv_m
+        df2: pd.DataFrame - same as above, but for the other distribution
+    Outputs:
+        float: The covariance discrepancy value
+    """
+    return np.sqrt(np.sum((df2.cov() - df1.cov())**2))
+
+def mmd(df1, df2, gamma):
+    """
+    Inputs:
+        df1: pd.DataFrame - contains observations sampled from the first distribution that have already been filtered in terms of dates
+        and only has columns rv_t, rv_w, rv_m
+        df2: pd.DataFrame - same as above, but for the other distribution
+    Outputs:
+        float: Maximum Mean Discrepancy value
+    """
+    X = np.asarray(df1.dropna())
+    Y = np.asarray(df2.dropna())
+
+    K_xx = rbf_kernel(X, X, gamma=gamma)
+    K_yy = rbf_kernel(Y, Y, gamma=gamma)
+    K_xy = rbf_kernel(X, Y, gamma=gamma)
+
+    mmd2 = K_xx.mean() + K_yy.mean() - 2*K_xy.mean()
+    return np.sqrt(max(mmd2, 0))
+
+def compute_rbf_bandwidth(X_local, X_all):
+    """
+    Inputs:
+        X_all: pd.DataFrame - output of get_source_for_dtw(...) - contains all source training data
+    Outputs:
+        X_local: pd.DataFrame - contains last 22 target observations before the test period, used as a reference for dtw
+        contains the first observation from test aswell
+    """
+    X_local = X_local.dropna().to_numpy()
+    X_all = X_all.dropna().to_numpy()
+    distances = cdist(X_local, X_all, metric="euclidean")
+
+    return 1 / (2*np.median(distances)**2)
+
+def compute_distribution_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a single DTW interval
+        percentile: int - percentile of the closest DTW intervals
+    Outputs:
+        pd.DataFrame - distribution statistics for all comparisons
+    """
+    # get the data for the distribution statistics
+    X_all, X_dtw, X_local, X_oos = get_no_label_dtw(
+        extended_source_df,
+        extended_target_df,
+        session_dates,
+        symbol,
+        dtw_features,
+        m,
+        percentile,
+    )
+
+    gamma = compute_rbf_bandwidth(X_local, X_all)
+
+    # use complete rows for all metrics
+    X_all = X_all.dropna()
+    X_dtw = X_dtw.dropna()
+    X_local = X_local.dropna()
+    X_oos = X_oos.dropna()
+
+    comparisons = [
+        ("DTW vs Local", X_dtw, X_local),
+        ("All vs Local", X_all, X_local),
+        ("DTW vs OOS", X_dtw, X_oos),
+        ("All vs OOS", X_all, X_oos),
+    ]
+
+    results = []
+
+    for comparison, df1, df2 in comparisons:
+        results.append(
+            {
+                "symbol": symbol,
+                "percentile": percentile,
+                "comparison": comparison,
+                "mean_discrepancy": mean_discrepancy(df1, df2),
+                "covariance_discrepancy": covariance_discrepancy(df1, df2),
+                "mmd": mmd(df1, df2, gamma),
+                "gamma": gamma,
+                "n_first": len(df1),
+                "n_second": len(df2),
+            }
+        )
+
+    return pd.DataFrame(results)

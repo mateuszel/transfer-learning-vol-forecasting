@@ -34,7 +34,8 @@ def _():
         plot_one_method_predictions,
         compare_metric_tables,
         compare_feature_set_metrics,
-        run_benchmark_grid
+        run_benchmark_grid,
+        compute_distribution_statistics
     )
 
     from preprocessing import build_trading_sessions
@@ -44,6 +45,7 @@ def _():
         build_trading_sessions,
         compare_feature_set_metrics,
         compare_metric_tables,
+        compute_distribution_statistics,
         compute_prediction_metrics,
         mo,
         pd,
@@ -870,7 +872,7 @@ def _(mo):
 
     Knowing the idea behind DTW and how it measures distance it is reasonable to expect a better predictive performance than using source only data or naively pooled data for training.
 
-    For the experiment we will use the same evaluation setup as before with test period being 50 sessions long and reestimating the models every 5 sessions. Intially we will only use $n_T=100$, as this is the smallest value (out of the tested ones) that offers stability of all TO-HAR-EXT models at the beginning of the test period. Moreover, we will consider models using DTW with three different $\varepsilon\in\{25, 50, 75\}$ in order to see how the performance depends on how selective we are when choosing source intervals. Again we will use relative QLIKE and MSE as our metrics.
+    For the experiment we will use the same evaluation setup as before with test period being 50 sessions long and reestimating the models every 5 sessions. Intially we will only use $n_T=100$, as this is the smallest value (out of the tested ones) that offers stability of all TO-HAR-EXT models at the beginning of the test period. Moreover, we will consider models using DTW with three different $\varepsilon\in\{25, 50, 75\}$ in order to see how the performance depends on how selective we are when choosing source intervals. Again we will use relative QLIKE and MSE as our metrics. Lastly, it is important to note that for calculation of DTW distance only standard HAR predictors will be used, even though extended feature set may be included in the final model.
     """)
     return
 
@@ -1044,6 +1046,172 @@ def _(mo):
     Overall, the results support the usefullness of DTW source transfer, but the relatively small imporvements and variation across selection thresholds raise an important question: Why does DTW improve forecasting? We investigate the question in the following section.
 
     Lastly, it's important to remember that there is no guarantee for the results' statistical significance. In particular, the test consists of only 50 samples, so the results may still be noisy.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## **5. What does DTW actually change?**
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **5.1 Marginal covariate shift**
+
+    We first want to examine if covariates in the intervals selected from the source using DTW have similar unconditional distribution to target covariates. In total two experiments will be run regarding this matter. Similarly to before we will only compare distributions of the standard HAR covariates, so $X=(RV_d, RV_w, RV_m)$.
+
+    Recall from earlier sections the construction of our evaluation setup and how it depends on the value $n_T$. We will try to check if DTW mitigates the distribution shift both in-sample and out-of-sample. Notice that in this experiment the value of $n_T$ doesn't matter as long as it is greater than or equal to $22$, that's because the test size is fixed at $50$ and we don't actually use any target observations apart from the $22$ ones directly preceeding test period. Let us denote:
+    \[
+        X_{all} \text{ - contains all source observations from all assets that fall into training set,}
+    \]
+    \[
+        X_{DTW} \text{ - contains source observations selected by DTW with } m=22 \text{ from } X_{all},
+    \]
+    \[
+        X_{local} \text{ - contains last } m=22 \text{ target observations, so the ones used as a reference for DTW},
+    \]
+    \[
+        X_{OOS} \text{ - contains all of the test target observations available}.
+    \]
+    For a given distribution discrepancy measure $\mathcal D$ we will try to verify the following hypotheses:
+    1. $\mathcal D(P(X_{DTW}), P(X_{local})) < \mathcal D(P(X_{all}), P(X_{local}))$
+    2. $\mathcal D(P(X_{DTW}), P(X_{OOS})) < \mathcal D(P(X_{all}), P(X_{OOS}))$
+
+    For this, and any future experiments examining distribution changes we will use three metrics, that will now be briefly introduced.
+    1. Mean discrepancy given by: $D_\mu(S, T) = ||\hat\mu_S - \hat\mu_T||_2$- a very simple metric that compares only the first moments of the distributions and is easy to interpret. However, it doesn't take into the account the shape of the distributions outside of their means.
+    2. Covariance discrepancy given by: $D_\Sigma(S,T) = ||\hat\Sigma_S - \hat\Sigma_T||_F$, which measures the similarity of variances of HAR predictors and similarity of their codependence.
+    3. Maximum Mean Discrepancy (MMD) - a kernel-based measure that compares distributions beyond their first two moments. For two samples $S$ and $T$, its squared empirical value is defined as:
+
+    $$\widehat{\operatorname{MMD}}^2(S,T)=\frac{1}{N_S^2}\sum_{i,j=1}^{N_S}k(x_{S,i},x_{S,j})+\frac{1}{N_T^2}\sum_{i,j=1}^{N_T}k(x_{T,i},x_{T,j})-\frac{2}{N_SN_T}\sum_{i=1}^{N_S}\sum_{j=1}^{N_T}k(x_{S,i},x_{T,j}),$$
+
+    where $N_S$ and $N_T$ denote sample sizes and $k$ is a kernel function.
+
+    We use the Gaussian RBF kernel:
+
+    $$k(x,y)=\exp\left(-\frac{||x-y||_2^2}{2\sigma^2}\right),$$
+
+    where the bandwidth $\sigma$ is set to the median Euclidean distance between observations from $X_{all}$ and $X_{local}$ and kept fixed across all comparisons. This kernel allows MMD to capture differences in the overall shape of multivariate distributions, although its results are sensitive to bandwidth selection and small sample sizes.
+
+    Together, these metrics provide a complementary assessment of distributional similarity. Mean and covariance discrepancies offer simple, interpretable diagnostics, while MMD captures more complex differences that the first two moments may miss.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_distribution_statistics,
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _dtw_features = ["rv_t", "rv_w", "rv_m"]
+    _m = 22
+    _symbols = ["CHWY", "CRWD"]
+    _percentiles = [25, 50, 75]
+
+    _distribution_results = []
+
+    for _symbol in _symbols:
+        for _percentile in _percentiles:
+            _distribution_results.append(
+                compute_distribution_statistics(
+                    extended_source_df=extended_source_df,
+                    extended_target_df=extended_target_df,
+                    session_dates=trading_sessions,
+                    symbol=_symbol,
+                    dtw_features=_dtw_features,
+                    m=_m,
+                    percentile=_percentile,
+                )
+            )
+
+    distribution_results = pd.concat(
+        _distribution_results,
+        ignore_index=True,
+    )
+
+
+    def _make_relative_distribution_table(symbol):
+        _symbol_results = distribution_results[
+            distribution_results["symbol"] == symbol
+        ]
+
+        _dtw_local = _symbol_results[
+            _symbol_results["comparison"] == "DTW vs Local"
+        ].set_index("percentile")
+        _all_local = _symbol_results[
+            _symbol_results["comparison"] == "All vs Local"
+        ].set_index("percentile")
+        _dtw_oos = _symbol_results[
+            _symbol_results["comparison"] == "DTW vs OOS"
+        ].set_index("percentile")
+        _all_oos = _symbol_results[
+            _symbol_results["comparison"] == "All vs OOS"
+        ].set_index("percentile")
+
+        _rows = []
+
+        for _percentile in _percentiles:
+            for _comparison, _dtw, _all in [
+                ("Local", _dtw_local, _all_local),
+                ("OOS", _dtw_oos, _all_oos),
+            ]:
+                _rows.append(
+                    {
+                        "percentile": _percentile,
+                        "comparison": _comparison,
+                        "relative_mean_discrepancy": (
+                            _dtw.loc[_percentile, "mean_discrepancy"]
+                            / _all.loc[_percentile, "mean_discrepancy"]
+                        ),
+                        "relative_covariance_discrepancy": (
+                            _dtw.loc[_percentile, "covariance_discrepancy"]
+                            / _all.loc[_percentile, "covariance_discrepancy"]
+                        ),
+                        "relative_mmd": (
+                            _dtw.loc[_percentile, "mmd"]
+                            / _all.loc[_percentile, "mmd"]
+                        ),
+                    }
+                )
+
+        return pd.DataFrame(_rows).round(3)
+
+
+    _chwy_relative_results = _make_relative_distribution_table("CHWY")
+    _crwd_relative_results = _make_relative_distribution_table("CRWD")
+
+    mo.vstack(
+        [
+            mo.md("#### Summary of distribution discrepancy metrics for CHWY"),
+            mo.ui.table(_chwy_relative_results, selection=None),
+            mo.md("#### Summary of distribution discrepancy metrics for CRWD"),
+            mo.ui.table(_crwd_relative_results, selection=None),
+        ]
+    )
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The tables report DTW discrepancies relative to all available source observations. Values below one indicate that DTW achieves a smaller discrepancy, while values above one indicate a larger discrepancy. `Local` refers to the DTW reference window, and `OOS` to the out-of-sample target period.
+
+    What we can notice first is that all of the values are smaller than one. That means that in general the sample created using the DTW distance is closer to the target sample in terms of similarity of their distribution, regardless of the version of the target sample and percentile.
+
+    Secondly, we can see that smaller values of $\varepsilon$ result in smaller discrepancies in most cases, apart from the CRWD local discrepancy. This suggests that testing smaller values of $\varepsilon$ might be reasonable.
+
+    Moreover, the DTW distance approximates the `OOS` sample better than the `Local` one. This is surprising, as one might expect the $X_{all}$ distribution to be closer to the $X_{OOS}$ than to $X_{local}, which would make the relative discrepancy of $X_{DTW}$ bigger. That isn't the case though, and an explanation of this phenomenon will not be examined at this time.
+
+    Lastly, we can see that the difference between discrepancies across assets is significant. This leads to questions regarding the generalization of the DTW method for a broader range of the assets. This might however not be caused by the method itself, but rather by the selected universe of source assets, as they might just be more suited to CHWY than CRWD, allowing for better DTW based selection.
     """)
     return
 
