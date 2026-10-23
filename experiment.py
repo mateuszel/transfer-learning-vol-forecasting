@@ -1023,9 +1023,9 @@ def _(
 
     mo.vstack(
         [
-            mo.md("## Table 1 - HAR-STD Forecasting Performance"),
+            mo.md("#### **Table 1 - HAR-STD Forecasting Performance**"),
             _table_with_min_highlights(_std_table),
-            mo.md("## Table 2 - HAR-EXT Forecasting Performance"),
+            mo.md("#### **Table 2 - HAR-EXT Forecasting Performance**"),
             _table_with_min_highlights(_ext_table),
         ]
     )
