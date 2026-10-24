@@ -1138,8 +1138,12 @@ def compute_label_monte_carlo(extended_source_df, extended_target_df, session_da
 def get_dtw_source_only_training_data(all_intervals, selected_ids, extended):
     """
     Inputs:
-
+        all_intervals: dict - all source intervals
+        selected_ids: list - ids of intervals selected by DTW
+        extended: bool - whether to use extended HAR features
     Outputs:
+        pd.DataFrame - source covariates
+        pd.Series - source labels
     """
     # concat the selected source data
     df = pd.concat([all_intervals[_id] for _id in selected_ids], ignore_index=True).drop(columns=["symbol"]).dropna()
@@ -1156,8 +1160,13 @@ def get_dtw_source_only_training_data(all_intervals, selected_ids, extended):
 def fit_conditional_shift_models(context, extended_source_df, extended_target_df, session_dates, initial_nt=100):
     """
     Inputs:
-
+        context: dict - DTW context
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        initial_nt: int - number of target observations used for training
     Outputs:
+        dict - fitted conditional mean models
     """
     # first get all training data
     X_all, y_all = get_source_only_training_data(context["first_forecast_date"], session_dates, extended_source_df, context["extended"])
@@ -1179,8 +1188,12 @@ def fit_conditional_shift_models(context, extended_source_df, extended_target_df
 def compute_conditional_mean_discrepancies(models, X_eval, session_dates, eval_dates):
     """
     Inputs:
-
+        models: dict - fitted conditional mean models
+        X_eval: pd.DataFrame - covariates used for evaluation
+        session_dates: pd.DataFrame - dates of all trading sessions
+        eval_dates: pd.Series - dates of evaluation observations
     Outputs:
+        tuple[float, float, float] - discrepancies and relative discrepancy
     """
     predictions = {}
 
@@ -1195,12 +1208,32 @@ def compute_conditional_mean_discrepancies(models, X_eval, session_dates, eval_d
     return D_all, D_dtw, relative_D
 
 def har_feature_columns(extended):
+    """
+    Inputs:
+        extended: bool - whether to use extended HAR features
+    Outputs:
+        list - HAR feature columns
+    """
     columns = ["rv_t", "rv_w", "rv_m"]
     if extended:
         columns += ["hsi_sqr", "vix", "us3m", "MOM", "DVC"]
     return columns
 
 def compute_conditional_shift_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended, initial_nt=100):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a DTW interval
+        percentile: int - percentile of selected DTW intervals
+        extended: bool - whether to use extended HAR features
+        initial_nt: int - number of target observations used for training
+    Outputs:
+        pd.DataFrame - conditional shift statistics
+    """
     # get the data needed 
     context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended)
 
@@ -1225,3 +1258,78 @@ def compute_conditional_shift_statistics(extended_source_df, extended_target_df,
             "relative_discrepancy": relative_D,
         }
     ])
+
+def prepare_reverse_data(X, Y, feature_columns):
+    """
+    Inputs:
+        X: pd.DataFrame - covariates
+        Y: pd.DataFrame - labels
+        feature_columns: list - covariate columns
+    Outputs:
+        pd.DataFrame - paired covariates
+        pd.Series - paired labels
+    """
+    data = pd.concat([X[feature_columns].reset_index(drop=True), Y[["rv_next"]].reset_index(drop=True)], axis=1).dropna()
+    return data[feature_columns], data["rv_next"]
+
+def fit_reverse_conditional_models(X, Y, feature_columns):
+    """
+    Inputs:
+        X: pd.DataFrame - covariates
+        Y: pd.Series - labels
+        feature_columns: list - covariate columns
+    Outputs:
+        dict - fitted reverse conditional models
+    """
+    Y = Y if isinstance(Y, pd.DataFrame) else Y.to_frame()
+    X, Y = prepare_reverse_data(X, Y, feature_columns)
+    X_with_const = sm.add_constant(Y)
+    return {feature: fit_har_model(X_with_const, X[feature]) for feature in feature_columns}
+
+def predict_reverse_conditional_models(models, Y_eval):
+    """
+    Inputs:
+        models: dict - fitted reverse conditional models
+        Y_eval: pd.DataFrame - labels used for evaluation
+    Outputs:
+        pd.DataFrame - predicted covariates
+    """
+    Y_with_const = sm.add_constant(Y_eval[["rv_next"]].dropna(), has_constant="add")
+    return pd.DataFrame({feature: model.predict(Y_with_const).to_numpy() for feature, model in models.items()}, index=Y_with_const.index)
+
+def compute_reverse_conditional_discrepancies(models, Y_eval, feature_columns):
+    """
+    Inputs:
+        models: dict - fitted reverse conditional models
+        Y_eval: pd.DataFrame - labels used for evaluation
+        feature_columns: list - covariate columns
+    Outputs:
+        tuple[float, float, float] - discrepancies and relative discrepancy
+    """
+    predictions = {name: predict_reverse_conditional_models(model, Y_eval) for name, model in models.items()}
+    D_all = np.sqrt(np.mean((predictions["All"][feature_columns].to_numpy() - predictions["Target"][feature_columns].to_numpy()) ** 2))
+    D_dtw = np.sqrt(np.mean((predictions["DTW"][feature_columns].to_numpy() - predictions["Target"][feature_columns].to_numpy()) ** 2))
+    return D_all, D_dtw, D_dtw / D_all
+
+def compute_reverse_conditional_shift_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended=False):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a DTW interval
+        percentile: int - percentile of selected DTW intervals
+        extended: bool - whether to use extended HAR features
+    Outputs:
+        pd.DataFrame - reverse conditional shift statistics
+    """
+    context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended)
+    feature_columns = har_feature_columns(extended)
+    X_all, Y_all = prepare_reverse_data(context["X_all"], context["Y_all"], feature_columns)
+    X_dtw, Y_dtw = prepare_reverse_data(context["X_dtw"], context["Y_dtw"], feature_columns)
+    X_target, Y_target = prepare_reverse_data(context["X_local"].iloc[:-1], context["Y_local"], feature_columns)
+    models = {"All": fit_reverse_conditional_models(X_all, Y_all, feature_columns), "DTW": fit_reverse_conditional_models(X_dtw, Y_dtw, feature_columns), "Target": fit_reverse_conditional_models(X_target, Y_target, feature_columns)}
+    D_all, D_dtw, relative_D = compute_reverse_conditional_discrepancies(models, context["Y_oos"], feature_columns)
+    return pd.DataFrame([{"symbol": symbol, "features": "EXT" if extended else "STD", "percentile": percentile, "D_all_target": D_all, "D_dtw_target": D_dtw, "relative_discrepancy": relative_D}])

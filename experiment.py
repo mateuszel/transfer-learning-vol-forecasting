@@ -44,7 +44,8 @@ def _():
         compute_monte_carlo,
         compute_label_distribution_statistics,
         compute_label_monte_carlo,
-        compute_conditional_shift_statistics
+        compute_conditional_shift_statistics,
+        compute_reverse_conditional_shift_statistics,
     )
 
     from preprocessing import build_trading_sessions
@@ -60,6 +61,7 @@ def _():
         compute_label_monte_carlo,
         compute_monte_carlo,
         compute_prediction_metrics,
+        compute_reverse_conditional_shift_statistics,
         mo,
         pd,
         plot_one_method_predictions,
@@ -1496,7 +1498,7 @@ def _(
     )
 
     mo.vstack([
-        mo.md("#### Table 9 - Predictive conditional shift"),
+        mo.md("#### **Table 9 - Predictive conditional shift**"),
         conditional_shift_results
     ])
     return
@@ -1518,7 +1520,40 @@ def _(mo):
 def _(mo):
     mo.md(r"""
     ### **5.4 Reverse conditional shift**
+
+    After examining the marginal distribution discrepancies and predictive conditional mean discrepancies we will now consider the reverse conditional relationship $P(X|Y)$. This relationship is particularly important in the anti-causal model, and even though there is no evidence of such model in our problem, examining this distribution shift might be helpful when experimenting with different domain adaptation methods later.
+
+    Similarly to the previous experiment we restrict the problem to conditional expectations instead of estimating the full conditional distributions, which would be difficult and possibly inaccurate with so little data. We consider the functions $E_S[X|Y]$, $E_{S_{\mathrm{DTW}}}[X|Y]$, and $E_T[X|Y]$, approximated using linear regressions estimated separately on All Source, DTW-selected Source, and Target History.
+
+    Each component of the standard HAR model is regressed on the future realized variance $Y$ with an intercept. The resulting conditional mean estimates will be evaluated at the same target label values.
+    The discrepancies will be measured using the RMSE between the estimated conditional mean vectors. The effect of DTW is summarized by the ratio between the DTW–Target and All–Target discrepancies.
+
+    As before, these results describe differences between linear approximations of the first conditional moments and do not establish equality or inequality of the full conditional distributions.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_reverse_conditional_shift_statistics,
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _reverse_conditional_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        for _percentile in [25, 50, 75]:
+            _reverse_conditional_results.append(compute_reverse_conditional_shift_statistics(extended_source_df=extended_source_df, extended_target_df=extended_target_df, session_dates=trading_sessions, symbol=_symbol, dtw_features=["rv_t", "rv_w", "rv_m"], m=22, percentile=_percentile, extended=False))
+
+    reverse_conditional_results = pd.concat(_reverse_conditional_results, ignore_index=True)
+
+    mo.vstack([
+        mo.md("#### **Table 10 - Reverse conditional shift**"),
+        mo.ui.table(reverse_conditional_results, selection=None),
+    ])
     return
 
 
