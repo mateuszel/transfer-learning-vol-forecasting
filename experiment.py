@@ -18,6 +18,10 @@ def _():
     import pandas as pd
     import statsmodels.api as sm
     import altair as alt
+    import importlib
+    import modelling
+
+    importlib.reload(modelling)
 
     from modelling import (
         get_source_only_training_data,
@@ -35,7 +39,10 @@ def _():
         compare_metric_tables,
         compare_feature_set_metrics,
         run_benchmark_grid,
-        compute_distribution_statistics
+        compute_distribution_statistics,
+        get_no_label_dtw,
+        compute_monte_carlo,
+        compute_label_distribution_statistics
     )
 
     from preprocessing import build_trading_sessions
@@ -46,6 +53,8 @@ def _():
         compare_feature_set_metrics,
         compare_metric_tables,
         compute_distribution_statistics,
+        compute_label_distribution_statistics,
+        compute_monte_carlo,
         compute_prediction_metrics,
         mo,
         pd,
@@ -1138,9 +1147,9 @@ def _(
     )
 
 
-    def _make_relative_distribution_table(symbol):
-        _symbol_results = distribution_results[
-            distribution_results["symbol"] == symbol
+    def make_relative_distribution_table(results, symbol):
+        _symbol_results = results[
+            results["symbol"] == symbol
         ]
 
         _dtw_local = _symbol_results[
@@ -1185,19 +1194,18 @@ def _(
         return pd.DataFrame(_rows).round(3)
 
 
-    _chwy_relative_results = _make_relative_distribution_table("CHWY")
-    _crwd_relative_results = _make_relative_distribution_table("CRWD")
+    _chwy_relative_results = make_relative_distribution_table(distribution_results, "CHWY")
+    _crwd_relative_results = make_relative_distribution_table(distribution_results, "CRWD")
 
     mo.vstack(
         [
-            mo.md("#### Summary of distribution discrepancy metrics for CHWY"),
+            mo.md("#### **Table 3 - Summary of distribution discrepancy metrics for CHWY**"),
             mo.ui.table(_chwy_relative_results, selection=None),
-            mo.md("#### Summary of distribution discrepancy metrics for CRWD"),
+            mo.md("#### **Table 4 - Summary of distribution discrepancy metrics for CRWD**"),
             mo.ui.table(_crwd_relative_results, selection=None),
         ]
     )
-
-    return
+    return (make_relative_distribution_table,)
 
 
 @app.cell(hide_code=True)
@@ -1209,10 +1217,123 @@ def _(mo):
 
     Secondly, we can see that smaller values of $\varepsilon$ result in smaller discrepancies in most cases, apart from the CRWD local discrepancy. This suggests that testing smaller values of $\varepsilon$ might be reasonable.
 
-    Moreover, the DTW distance approximates the `OOS` sample better than the `Local` one. This is surprising, as one might expect the $X_{all}$ distribution to be closer to the $X_{OOS}$ than to $X_{local}, which would make the relative discrepancy of $X_{DTW}$ bigger. That isn't the case though, and an explanation of this phenomenon will not be examined at this time.
+    Moreover, the DTW distance approximates the `OOS` sample better than the `Local` one. This is surprising, as one might expect the $X_{all}$ distribution to be closer to the $X_{OOS}$ than to $X_{local}$, which would make the relative discrepancy of $X_{DTW}$ bigger. That isn't the case though, and an explanation of this phenomenon will not be examined at this time.
 
     Lastly, we can see that the difference between discrepancies across assets is significant. This leads to questions regarding the generalization of the DTW method for a broader range of the assets. This might however not be caused by the method itself, but rather by the selected universe of source assets, as they might just be more suited to CHWY than CRWD, allowing for better DTW based selection.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Now we will answer a question regarding significancy of the above results. It could be possible that the reduction of the distribution isn't a result of the way DTW selects samples, but is caused by the reduction of the sample size.
+
+    So now we will compare the discrepancy of DTW selected sample to discrepancy of a randomly selected sample of the same size. For simplicity, we will focus on comparing to the `OOS` sample and we will only do that for $\varepsilon=25$. The rest of the setup stays exactly the same as previously.
+
+    For each target asset we first construct the set of intervals selected by DTW-25, suppose there is $K$ of these intervals. We then randomly (without replacement) choose $K$ intervals out of all possible source intervals and compute the relative discrepancies similarly to previous experiment.
+
+    The last step will be repeated $B=350$ times and we will report the means, 5th and 95th percentiles and the percent of results where discrepancy was less than or equal to the DTW one.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_monte_carlo,
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _monte_carlo_results = []
+
+    for _symbol in ["CRWD", "CHWY"]:
+        _monte_carlo_results.append(compute_monte_carlo(extended_source_df, extended_target_df, trading_sessions, _symbol, ["rv_t", "rv_w", "rv_m"], 22, 25))
+
+    monte_carlo_results = pd.concat(_monte_carlo_results, ignore_index=True)
+
+    mo.vstack([
+        mo.md("#### **Table 5 - Marginal Covariate Discrepancy: DTW vs Random Source Selection**"),
+        monte_carlo_results
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    As we can see above DTW-based source selection consistently reduces marginal covariate discrepancy relative to both the complete source pool and randomly selected subsets of equal size. This effect can be observed for both target assets and all considered metrics. So, we can say that the reduction of discrepancies across metrics is not caused by the smaller sample size.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **5.2 Marginal label shift**
+
+    So far we have managed to show that DTW-based source selection reduces the discrepancy between marignal covariate distributions. Since when selecting the intervals for transfer, DTW takes the covariate values into account it is not that surprising. Now we will tackle a more interesting question:
+
+    Does DTW-based source selection also reduce the discrepancy between source and target label distribution?
+
+    Since DTW doesn't use the labels for selection it wouldn't be unexpected if it didn't reduce the label distribution shift. On the other hand, if the discrepancies get smaller, that would indicate that similarity in historical volatility patterns translates into similarity in the distribution of future realized volatility.
+
+    The experiment used to answer this question will be almost identical to the previous one with the difference that this time we will be comparing label distribution discrepancies instead of covariate distributions discrepancies. So once again we will first compare the selections made by DTW with different values of $\varepsilon$ for both assets and both $Y_{local}$ and $Y_{OOS}$ samples across three metrics. If this comparisons shows some positive results we will validate them similarly to before.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_label_distribution_statistics,
+    extended_source_df,
+    extended_target_df,
+    make_relative_distribution_table,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _label_distribution_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        for _percentile in [25, 50, 75]:
+            _label_distribution_results.append(
+                compute_label_distribution_statistics(
+                    extended_source_df=extended_source_df,
+                    extended_target_df=extended_target_df,
+                    session_dates=trading_sessions,
+                    symbol=_symbol,
+                    dtw_features=["rv_t", "rv_w", "rv_m"],
+                    m=22,
+                    percentile=_percentile,
+                )
+            )
+
+    label_distribution_results = pd.concat(
+        _label_distribution_results,
+        ignore_index=True,
+    )
+
+    _chwy_label_relative_results = make_relative_distribution_table(
+        label_distribution_results,
+        "CHWY",
+    )
+
+    _crwd_label_relative_results = make_relative_distribution_table(
+        label_distribution_results,
+        "CRWD",
+    )
+
+    mo.vstack(
+        [
+            mo.md("#### **Table 6 - Label Distribution Discrepancy: CHWY**"),
+            mo.ui.table(_chwy_label_relative_results, selection=None),
+            mo.md("#### **Table 7 - Label Distribution Discrepancy: CRWD**"),
+            mo.ui.table(_crwd_label_relative_results, selection=None),
+        ]
+    )
     return
 
 

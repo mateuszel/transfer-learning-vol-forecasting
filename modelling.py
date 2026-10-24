@@ -755,7 +755,70 @@ def run_benchmark_grid(session_dates, extended_source_df, extended_target_df, nt
         ],
     )
 
-def get_no_label_dtw(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile):
+def get_dtw_context(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - contains all observations for both target assets  
+        trading_sessions: pd.DataFrame - contains dates of all trading sessions,
+        in the format returned by build_trading_sessions(...)
+        symbol: string - name of the symbol for which we want to get target only training data
+        dtw_featues: list - which features should be considered in when computing DTW distance
+        m: int - length of a single interval
+        percentile: int - percentile of the closest DTW observations to add to training set
+    Outputs:
+        dict[str, pd.DataFrame] - context 
+    """
+    # get the target interval of length m
+    target = extended_target_df[extended_target_df["symbol"] == symbol].dropna(subset='rv_next').reset_index(drop=True)
+
+    first_test_idx = len(target) - 50 # features from this index are used in forecast of the first oos test
+    current_date = target.loc[first_test_idx, "t"]
+    first_forecast_date = get_next_session_date(current_date, trading_sessions) # the date of the first forecast
+
+    # local target raw rows used as reference for dtw
+    dtw_target = get_target_for_dtw(target, first_test_idx, dtw_features, m)
+
+    # oos target raw rows (in particular contains all rv_next used for oos)
+    oos_raw = target.iloc[first_test_idx:].copy() 
+
+    # all source data available before first forecast - used for dtw
+    source = get_source_for_dtw(first_forecast_date, trading_sessions, extended_source_df)
+
+    # get all intervals needed for dtw
+    target_interval, all_intervals, dtw_intervals = construct_intervals(dtw_target, source, False, dtw_features, m)
+
+    # get ids of the intervals selected by dtw
+    selected_ids = compute_dtw(target_interval, dtw_intervals, percentile)
+
+    # now prepare covariate data
+    X_all = source[dtw_features].copy()
+    X_local = target_interval[dtw_features].copy()
+    X_oos = oos_raw[dtw_features].copy()
+    X_dtw = pd.concat([all_intervals[_id] for _id in selected_ids], ignore_index=True)[dtw_features]
+
+    # now prepare label data
+    Y_all = source[["rv_next"]].dropna().reset_index(drop=True)
+    Y_local = dtw_target.iloc[:-1][["rv_next"]].dropna().reset_index(drop=True) # we drop the last label because it is part of OOS even though its used for DTW (used without label)
+    Y_oos = oos_raw[["rv_next"]].dropna().reset_index(drop=True)
+    Y_dtw = pd.concat([all_intervals[_id][["rv_next"]] for _id in selected_ids], ignore_index=True).dropna()
+
+    # return the whole context to be used by other functions
+    return {
+    "X_all": X_all,
+    "X_dtw": X_dtw, # K*22x3
+    "X_local": X_local, # 22x3
+    "X_oos": X_oos, # 50x3
+    "Y_all": Y_all,
+    "Y_dtw": Y_dtw, # K*22x1
+    "Y_local": Y_local, # 22x1
+    "Y_oos": Y_oos, # 50x1
+    "all_intervals": all_intervals,
+    "n_selected_intervals": len(selected_ids),
+    "selected_ids": selected_ids
+}
+
+def get_no_label_dtw(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile, return_intervals=False):
     """
     Inputs:
         extended_source_df: pd.DataFrame - dataframe of all source data
@@ -773,23 +836,12 @@ def get_no_label_dtw(extended_source_df, extended_target_df, trading_sessions, s
         contains the first observation from test aswell 
         X_oos: pd.DataFrame - contains all of test target observations (50)
     """
-    # get the target interval of length m
-    target = extended_target_df[extended_target_df["symbol"] == symbol].dropna(subset='rv_next').reset_index(drop=True)
+    context = get_dtw_context(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile)
 
-    first_test_idx = len(target) - 50 # features from this index are used in forecast of the first oos test
-    current_date = target.loc[first_test_idx, "t"]
-    first_forecast_date = get_next_session_date(current_date, trading_sessions) # the date of the first forecast
+    if return_intervals:
+        return context["X_all"], context["X_dtw"], context["X_local"], context["X_oos"], context["all_intervals"]
 
-    X_local = get_target_for_dtw(target, first_test_idx, dtw_features, m)
-    X_oos = target.iloc[first_test_idx:][dtw_features]
-    X_all = get_source_for_dtw(first_forecast_date, trading_sessions, extended_source_df)
-
-    X_local, og_intervals, dtw_intervals = construct_intervals(X_local, X_all, False, dtw_features, m)
-    selected_ids = compute_dtw(X_local, dtw_intervals, percentile)
-    X_dtw = pd.concat([og_intervals[_id] for _id in selected_ids]).reset_index(drop=True)[dtw_features]
-    X_all = X_all[dtw_features]
-
-    return X_all, X_dtw, X_local, X_oos
+    return context["X_all"], context["X_dtw"], context["X_local"], context["X_oos"]
 
 def mean_discrepancy(df1, df2):
     """
@@ -903,3 +955,125 @@ def compute_distribution_statistics(extended_source_df, extended_target_df, sess
         )
 
     return pd.DataFrame(results)
+
+def compute_monte_carlo(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a single DTW interval
+        percentile: int - percentile of the closest DTW intervals
+    Outputs:
+        pd.DataFrame: summary of the monte carlo experiment results per asset and metric
+    """
+    X_all, X_dtw, X_local, X_oos, all_intervals = get_no_label_dtw(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, True)
+
+    all_interval_ids = list(all_intervals.keys())
+
+    X_all = X_all.dropna()
+    X_dtw = X_dtw.dropna()
+    X_local = X_local.dropna()
+    X_oos = X_oos.dropna()
+
+    gamma = compute_rbf_bandwidth(X_local, X_all)
+
+    all_mean = mean_discrepancy(X_all, X_oos)
+    all_cov = covariance_discrepancy(X_all, X_oos)
+    all_mmd = mmd(X_all, X_oos, gamma)
+
+    dtw_mean = mean_discrepancy(X_dtw, X_oos)
+    dtw_cov = covariance_discrepancy(X_dtw, X_oos)
+    dtw_mmd = mmd(X_dtw, X_oos, gamma)
+
+    dtw_relative = {
+        "mean": dtw_mean / all_mean,
+        "covariance": dtw_cov / all_cov,
+        "mmd": dtw_mmd / all_mmd
+    }
+
+    K = len(X_dtw) // m
+
+    rng = np.random.default_rng(1097)
+    metrics = []
+
+    for _ in range(350):
+        random_ids = rng.choice(all_interval_ids, size=K, replace=False)
+
+        X_random = pd.concat([all_intervals[interval_id] for interval_id in random_ids], ignore_index=True)
+        X_random = X_random[dtw_features].dropna()
+
+        metrics.append({
+            "mean": mean_discrepancy(X_random, X_oos) / all_mean,
+            "covariance": covariance_discrepancy(X_random, X_oos) / all_cov,
+            "mmd": mmd(X_random, X_oos, gamma) / all_mmd
+        })
+
+    metrics = pd.DataFrame(metrics)
+    summary = []
+
+    for metric in ["mean", "covariance", "mmd"]:
+        summary.append({
+            "symbol": symbol,
+            "metric": metric,
+            "dtw_relative": dtw_relative[metric],
+            "random_mean": metrics[metric].mean(),
+            "random_p05": metrics[metric].quantile(0.05),
+            "random_p95": metrics[metric].quantile(0.95),
+            "random_le_dtw_pct": (metrics[metric] <= dtw_relative[metric]).mean(),
+
+        })
+
+    return pd.DataFrame(summary)
+
+def compute_label_distribution_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a single DTW interval
+        percentile: int - percentile of the closest DTW intervals
+    Outputs:
+        pd.DataFrame - distribution statistics for all comparisons
+    """
+    # get context data first
+    context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile)
+    Y_all = context["Y_all"]
+    Y_dtw = context["Y_dtw"]
+    Y_local = context["Y_local"]
+    Y_oos = context["Y_oos"]
+
+    # get gamma
+    gamma = compute_rbf_bandwidth(Y_local, Y_all)
+
+    comparisons = [
+        ("DTW vs Local", Y_dtw, Y_local),
+        ("All vs Local", Y_all, Y_local),
+        ("DTW vs OOS", Y_dtw, Y_oos),
+        ("All vs OOS", Y_all, Y_oos)
+    ]
+
+    results = []
+    
+    for comparison, df1, df2 in comparisons:
+        results.append(
+            {
+                "symbol": symbol,
+                "percentile": percentile,
+                "comparison": comparison,
+                "mean_discrepancy": mean_discrepancy(df1, df2),
+                "covariance_discrepancy": covariance_discrepancy(df1, df2),
+                "mmd": mmd(df1, df2, gamma),
+                "gamma": gamma,
+                "n_first": len(df1),
+                "n_second": len(df2),
+            }
+        )
+    
+    return pd.DataFrame(results)
+ 
