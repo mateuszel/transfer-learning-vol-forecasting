@@ -1259,17 +1259,16 @@ def compute_conditional_shift_statistics(extended_source_df, extended_target_df,
         }
     ])
 
-def prepare_reverse_data(X, Y, feature_columns):
+def prepare_reverse_data(data, feature_columns):
     """
     Inputs:
-        X: pd.DataFrame - covariates
-        Y: pd.DataFrame - labels
+        data: pd.DataFrame - covariates and labels from the same rows
         feature_columns: list - covariate columns
     Outputs:
         pd.DataFrame - paired covariates
         pd.Series - paired labels
     """
-    data = pd.concat([X[feature_columns].reset_index(drop=True), Y[["rv_next"]].reset_index(drop=True)], axis=1).dropna()
+    data = data[feature_columns + ["rv_next"]].dropna()
     return data[feature_columns], data["rv_next"]
 
 def fit_reverse_conditional_models(X, Y, feature_columns):
@@ -1281,8 +1280,6 @@ def fit_reverse_conditional_models(X, Y, feature_columns):
     Outputs:
         dict - fitted reverse conditional models
     """
-    Y = Y if isinstance(Y, pd.DataFrame) else Y.to_frame()
-    X, Y = prepare_reverse_data(X, Y, feature_columns)
     X_with_const = sm.add_constant(Y)
     return {feature: fit_har_model(X_with_const, X[feature]) for feature in feature_columns}
 
@@ -1311,7 +1308,7 @@ def compute_reverse_conditional_discrepancies(models, Y_eval, feature_columns):
     D_dtw = np.sqrt(np.mean((predictions["DTW"][feature_columns].to_numpy() - predictions["Target"][feature_columns].to_numpy()) ** 2))
     return D_all, D_dtw, D_dtw / D_all
 
-def compute_reverse_conditional_shift_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended=False):
+def compute_reverse_conditional_shift_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended=False, initial_nt=100):
     """
     Inputs:
         extended_source_df: pd.DataFrame - dataframe of all source data
@@ -1322,14 +1319,25 @@ def compute_reverse_conditional_shift_statistics(extended_source_df, extended_ta
         m: int - length of a DTW interval
         percentile: int - percentile of selected DTW intervals
         extended: bool - whether to use extended HAR features
+        initial_nt: int - number of target observations used for training
     Outputs:
         pd.DataFrame - reverse conditional shift statistics
     """
-    context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended)
-    feature_columns = har_feature_columns(extended)
-    X_all, Y_all = prepare_reverse_data(context["X_all"], context["Y_all"], feature_columns)
-    X_dtw, Y_dtw = prepare_reverse_data(context["X_dtw"], context["Y_dtw"], feature_columns)
-    X_target, Y_target = prepare_reverse_data(context["X_local"].iloc[:-1], context["Y_local"], feature_columns)
+    if extended:
+        raise ValueError("Reverse conditional shift is implemented for STD features only.")
+
+    context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended=False)
+    feature_columns = har_feature_columns(False)
+
+    source = get_source_for_dtw(context["first_forecast_date"], session_dates, extended_source_df)
+    dtw_source = pd.concat([context["all_intervals"][_id] for _id in context["selected_ids"]], ignore_index=True)
+    target = extended_target_df[extended_target_df["symbol"] == symbol].dropna(subset="rv_next").reset_index(drop=True)
+    start_idx = context["first_test_idx"] - initial_nt
+    target_history = target.iloc[start_idx:context["first_test_idx"]]
+
+    X_all, Y_all = prepare_reverse_data(source, feature_columns)
+    X_dtw, Y_dtw = prepare_reverse_data(dtw_source, feature_columns)
+    X_target, Y_target = prepare_reverse_data(target_history, feature_columns)
     models = {"All": fit_reverse_conditional_models(X_all, Y_all, feature_columns), "DTW": fit_reverse_conditional_models(X_dtw, Y_dtw, feature_columns), "Target": fit_reverse_conditional_models(X_target, Y_target, feature_columns)}
     D_all, D_dtw, relative_D = compute_reverse_conditional_discrepancies(models, context["Y_oos"], feature_columns)
-    return pd.DataFrame([{"symbol": symbol, "features": "EXT" if extended else "STD", "percentile": percentile, "D_all_target": D_all, "D_dtw_target": D_dtw, "relative_discrepancy": relative_D}])
+    return pd.DataFrame([{"symbol": symbol, "features": "STD", "percentile": percentile, "initial_nt": initial_nt, "D_all_target": D_all, "D_dtw_target": D_dtw, "relative_discrepancy": relative_D}])

@@ -1546,7 +1546,7 @@ def _(
 
     for _symbol in ["CHWY", "CRWD"]:
         for _percentile in [25, 50, 75]:
-            _reverse_conditional_results.append(compute_reverse_conditional_shift_statistics(extended_source_df=extended_source_df, extended_target_df=extended_target_df, session_dates=trading_sessions, symbol=_symbol, dtw_features=["rv_t", "rv_w", "rv_m"], m=22, percentile=_percentile, extended=False))
+            _reverse_conditional_results.append(compute_reverse_conditional_shift_statistics(extended_source_df=extended_source_df, extended_target_df=extended_target_df, session_dates=trading_sessions, symbol=_symbol, dtw_features=["rv_t", "rv_w", "rv_m"], m=22, percentile=_percentile, extended=False, initial_nt=100))
 
     reverse_conditional_results = pd.concat(_reverse_conditional_results, ignore_index=True)
 
