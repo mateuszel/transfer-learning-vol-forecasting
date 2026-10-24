@@ -42,7 +42,9 @@ def _():
         compute_distribution_statistics,
         get_no_label_dtw,
         compute_monte_carlo,
-        compute_label_distribution_statistics
+        compute_label_distribution_statistics,
+        compute_label_monte_carlo,
+        compute_conditional_shift_statistics
     )
 
     from preprocessing import build_trading_sessions
@@ -52,8 +54,10 @@ def _():
         build_trading_sessions,
         compare_feature_set_metrics,
         compare_metric_tables,
+        compute_conditional_shift_statistics,
         compute_distribution_statistics,
         compute_label_distribution_statistics,
+        compute_label_monte_carlo,
         compute_monte_carlo,
         compute_prediction_metrics,
         mo,
@@ -1252,7 +1256,7 @@ def _(
     for _symbol in ["CRWD", "CHWY"]:
         _monte_carlo_results.append(compute_monte_carlo(extended_source_df, extended_target_df, trading_sessions, _symbol, ["rv_t", "rv_w", "rv_m"], 22, 25))
 
-    monte_carlo_results = pd.concat(_monte_carlo_results, ignore_index=True)
+    monte_carlo_results = pd.concat(_monte_carlo_results, ignore_index=True).drop(columns=["n_repetitions", "n_intervals"])
 
     mo.vstack([
         mo.md("#### **Table 5 - Marginal Covariate Discrepancy: DTW vs Random Source Selection**"),
@@ -1280,7 +1284,9 @@ def _(mo):
 
     Since DTW doesn't use the labels for selection it wouldn't be unexpected if it didn't reduce the label distribution shift. On the other hand, if the discrepancies get smaller, that would indicate that similarity in historical volatility patterns translates into similarity in the distribution of future realized volatility.
 
-    The experiment used to answer this question will be almost identical to the previous one with the difference that this time we will be comparing label distribution discrepancies instead of covariate distributions discrepancies. So once again we will first compare the selections made by DTW with different values of $\varepsilon$ for both assets and both $Y_{local}$ and $Y_{OOS}$ samples across three metrics. If this comparisons shows some positive results we will validate them similarly to before.
+    The experiment follows the same setup as the marginal covariate analysis, except that we now compare the distributions of $Y=RV_{t+1}$ rather than the HAR predictors. We retain the same DTW-selected source intervals and evaluate the mean, variance, and MMD discrepancies relative to the complete source dataset.
+
+    For each target asset, we consider the same selection thresholds $\varepsilon\in\{25,50,75\}$ and compare the selected source labels with both local and out-of-sample target labels. The local sample contains 21 known labels corresponding to the first 21 observations of the 22-day DTW reference window. The final label is excluded because its realization is not yet available at the selection date. Out-of-sample labels are used exclusively for retrospective evaluation and do not influence DTW selection or kernel bandwidth estimation.
     """)
     return
 
@@ -1334,6 +1340,185 @@ def _(
             mo.ui.table(_crwd_label_relative_results, selection=None),
         ]
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The results suggests that DTW-based source selection reduces marginal lebale distribution discrepancies for both target assets, despite using only covariates during selection. Every reported value is below one and the largest improvements are generally observed for the most selective variant of DTW.
+
+    In particular, for the out-of-sample target distributions, DTW-25 reduces MMD by approximately 20% for CHWY and 14% for CRWD. This suggests that similarity in historical volatility patterns may also translate into similarity in the distributions of future realized volatility. However, it does not necessarily imply that the conditional predictive relationships between covariates and labels are preserved.
+
+    As in the previous experiment, we cannot yet determine whether these improvements are specific to DTW-based selection or could also arise from selecting a smaller subset of source observations. To investigate this, we repeat the Monte Carlo randomization experiment, comparing DTW-25 with randomly selected sets containing the same number of source intervals.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_label_monte_carlo,
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _label_monte_carlo_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        _label_monte_carlo_results.append(
+            compute_label_monte_carlo(
+                extended_source_df=extended_source_df,
+                extended_target_df=extended_target_df,
+                session_dates=trading_sessions,
+                symbol=_symbol,
+                dtw_features=["rv_t", "rv_w", "rv_m"],
+                m=22,
+                percentile=25,
+            )
+        )
+
+    label_monte_carlo_results = pd.concat(_label_monte_carlo_results, ignore_index=True).drop(columns=["n_repetitions", "n_intervals"])
+    mo.vstack(
+        [
+            mo.md("#### **Table 8 - Label Shift: DTW vs Random Source Selection**"),
+            mo.ui.table(label_monte_carlo_results, selection=None),
+        ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The Monte Carlo results confirm that DTW-25 achieves lower marginal label discrepancies than randomly selected source subsets of equal size. For both assets and all three metrics, none of the random selections performed better than DTW. This suggests that the observed improvement is attributable to similarity-based selection rather than merely reducing the sample size.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **5.3 Predictive conditional shift**
+    We have managed to empirically show that DTW-based source selections leads to decrease in both marginal covariate distribution shift and label distribution shift. However, none of these results imply that the predictive relationship between covariates and labels is stable across source and target when using DTW. In other words, the predictive mechanism in target domain may use similar values of features, but work completely different, even after DTW-based source selection.
+
+    More formally we want to check if
+    \[
+     P_S(Y|X)\approx P_T(Y|X),
+    \]
+    and how the relationship changes when source is selected using the DTW distance.
+
+    Full conditional distributions are difficult to estimate reliably with few observations, especially in the case of regression. Because of that we will treat discrepancies in the conditional expectation functions across target and source as a proxy for discrepancies in their distributions.
+
+    We will train three HAR models using different training datasets similarly to previous approaches:
+    1. HAR-All will be trained on all of the available source data preceeding test period,
+    2. HAR-DTW will be trained on pooled source observations selected by DTW, without using target observations
+    3. HAR-Target will only use available target observations
+
+    Assuming that the relationship between X and Y on both source and target datasets is described correctly by the linear HAR model, evaluating the trained models on given observations should yield good estimation of the conditional expectation.
+
+    Let $m_S(x)$, $m_{S_{\mathrm{DTW}}}(x)$, and $m_T(x)$ denote the conditional mean functions associated with the original source distribution, DTW-selected source distribution, and target distribution, respectively.
+
+    Their corresponding HAR-based estimates are denoted by $\hat m_S(x)$, $\hat m_{S_{\mathrm{DTW}}}(x)$, and $\hat m_T(x)$.
+
+    To quantify the differences between these conditional mean functions, we evaluate all three fitted models on the same set of target covariates $X_1,\ldots,X_n$ and compute the root mean squared discrepancy:
+
+    $$
+    D(A,T)=\sqrt{\frac{1}{n}\sum_{i=1}^{n}\left(\hat m_A(X_i)-\hat m_T(X_i)\right)^2},
+    $$
+
+    where $A\in\{S,S_{\mathrm{DTW}}\}$. Thus, we measure the discrepancy between the target conditional mean estimate and each of the two source conditional mean estimates using identical covariate observations.
+
+    The choice of target covariates is motivated by the relationship between conditional mean differences and forecasting risk. Under squared-error loss, the excess target risk of using the true source conditional mean instead of the optimal target conditional mean satisfies
+
+    $$
+    R_T(m_A)-R_T(m_T)
+    =
+    E_T\left[(m_A(X)-m_T(X))^2\right].
+    $$
+
+    Here, $R_T(f)=E_T[(Y-f(X))^2]$ denotes the expected squared prediction error in the target domain. Therefore, differences between the true conditional mean functions, averaged over the target covariate distribution, quantify the additional target prediction error associated with using the source conditional mean instead of the optimal target conditional mean.
+
+    This motivates our empirical discrepancy measure, although the identity applies to the true conditional means, whereas our experiment uses their HAR-based estimates.
+
+    Finally, we quantify the effect of DTW selection through the relative discrepancy:
+
+    $$
+    D_{\mathrm{rel}}=\frac{D(S_{\mathrm{DTW}},T)}{D(S,T)}.
+    $$
+
+    Values below one indicate that DTW selection reduces the discrepancy between the estimated conditional mean functions, whereas values above one indicate an increase.
+
+    Importantly, this analysis only examines the first conditional moment under a linear HAR specification. It does not establish equality of the full conditional distributions or verify the covariate shift assumption.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    compute_conditional_shift_statistics,
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    trading_sessions,
+):
+    _conditional_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        for _extended, _features in [
+            (False, "STD"),
+            (True, "EXT"),
+        ]:
+            for _percentile in [25, 50, 75]:
+                _conditional_results.append(
+                    compute_conditional_shift_statistics(
+                        extended_source_df=extended_source_df,
+                        extended_target_df=extended_target_df,
+                        session_dates=trading_sessions,
+                        symbol=_symbol,
+                        dtw_features=[
+                            "rv_t",
+                            "rv_w",
+                            "rv_m",
+                        ],
+                        m=22,
+                        percentile=_percentile,
+                        extended=_extended,
+                        initial_nt=100,
+                    )
+                )
+
+    conditional_shift_results = pd.concat(
+        _conditional_results,
+        ignore_index=True,
+    )
+
+    mo.vstack([
+        mo.md("#### Table 9 - Predictive conditional shift"),
+        conditional_shift_results
+    ])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The results indicate that DTW-based source selection does not improve the agreement between the estimated source and target conditional mean functions. For both CHWY and CRWD, the relative discrepancy exceeds one, with larger deviations under more restrictive DTW selection.
+
+    This contrasts with the previous findings of improved marginal alignment and forecasting performance. One possible explanation is that the target-only HAR model, estimated from a limited historical sample, is an imperfect approximation of the underlying target conditional mean. Consequently, greater agreement with this reference model does not necessarily imply better out-of-sample predictions.
+
+    These findings suggest that improved marginal alignment and forecasting performance need not coincide with greater agreement between estimated conditional mean functions. However, they do not establish that DTW increases the true predictive conditional distribution shift.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **5.4 Reverse conditional shift**
+    """)
     return
 
 

@@ -755,7 +755,7 @@ def run_benchmark_grid(session_dates, extended_source_df, extended_target_df, nt
         ],
     )
 
-def get_dtw_context(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile):
+def get_dtw_context(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile, extended=False):
     """
     Inputs:
         extended_source_df: pd.DataFrame - dataframe of all source data
@@ -786,7 +786,7 @@ def get_dtw_context(extended_source_df, extended_target_df, trading_sessions, sy
     source = get_source_for_dtw(first_forecast_date, trading_sessions, extended_source_df)
 
     # get all intervals needed for dtw
-    target_interval, all_intervals, dtw_intervals = construct_intervals(dtw_target, source, False, dtw_features, m)
+    target_interval, all_intervals, dtw_intervals = construct_intervals(dtw_target, source, extended, dtw_features, m)
 
     # get ids of the intervals selected by dtw
     selected_ids = compute_dtw(target_interval, dtw_intervals, percentile)
@@ -811,11 +811,16 @@ def get_dtw_context(extended_source_df, extended_target_df, trading_sessions, sy
     "X_oos": X_oos, # 50x3
     "Y_all": Y_all,
     "Y_dtw": Y_dtw, # K*22x1
-    "Y_local": Y_local, # 22x1
+    "Y_local": Y_local, # 21x1
     "Y_oos": Y_oos, # 50x1
     "all_intervals": all_intervals,
     "n_selected_intervals": len(selected_ids),
-    "selected_ids": selected_ids
+    "selected_ids": selected_ids,
+    "symbol": symbol,
+    "first_test_idx": first_test_idx,
+    "first_forecast_date": first_forecast_date,
+    "extended": extended,
+    "oos_raw": oos_raw
 }
 
 def get_no_label_dtw(extended_source_df, extended_target_df, trading_sessions, symbol, dtw_features, m, percentile, return_intervals=False):
@@ -969,64 +974,17 @@ def compute_monte_carlo(extended_source_df, extended_target_df, session_dates, s
     Outputs:
         pd.DataFrame: summary of the monte carlo experiment results per asset and metric
     """
-    X_all, X_dtw, X_local, X_oos, all_intervals = get_no_label_dtw(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, True)
+    context = get_dtw_context(
+        extended_source_df,
+        extended_target_df,
+        session_dates,
+        symbol,
+        dtw_features,
+        m,
+        percentile,
+    )
 
-    all_interval_ids = list(all_intervals.keys())
-
-    X_all = X_all.dropna()
-    X_dtw = X_dtw.dropna()
-    X_local = X_local.dropna()
-    X_oos = X_oos.dropna()
-
-    gamma = compute_rbf_bandwidth(X_local, X_all)
-
-    all_mean = mean_discrepancy(X_all, X_oos)
-    all_cov = covariance_discrepancy(X_all, X_oos)
-    all_mmd = mmd(X_all, X_oos, gamma)
-
-    dtw_mean = mean_discrepancy(X_dtw, X_oos)
-    dtw_cov = covariance_discrepancy(X_dtw, X_oos)
-    dtw_mmd = mmd(X_dtw, X_oos, gamma)
-
-    dtw_relative = {
-        "mean": dtw_mean / all_mean,
-        "covariance": dtw_cov / all_cov,
-        "mmd": dtw_mmd / all_mmd
-    }
-
-    K = len(X_dtw) // m
-
-    rng = np.random.default_rng(1097)
-    metrics = []
-
-    for _ in range(350):
-        random_ids = rng.choice(all_interval_ids, size=K, replace=False)
-
-        X_random = pd.concat([all_intervals[interval_id] for interval_id in random_ids], ignore_index=True)
-        X_random = X_random[dtw_features].dropna()
-
-        metrics.append({
-            "mean": mean_discrepancy(X_random, X_oos) / all_mean,
-            "covariance": covariance_discrepancy(X_random, X_oos) / all_cov,
-            "mmd": mmd(X_random, X_oos, gamma) / all_mmd
-        })
-
-    metrics = pd.DataFrame(metrics)
-    summary = []
-
-    for metric in ["mean", "covariance", "mmd"]:
-        summary.append({
-            "symbol": symbol,
-            "metric": metric,
-            "dtw_relative": dtw_relative[metric],
-            "random_mean": metrics[metric].mean(),
-            "random_p05": metrics[metric].quantile(0.05),
-            "random_p95": metrics[metric].quantile(0.95),
-            "random_le_dtw_pct": (metrics[metric] <= dtw_relative[metric]).mean(),
-
-        })
-
-    return pd.DataFrame(summary)
+    return compute_monte_carlo_from_context(context=context, data_prefix="X", interval_columns=dtw_features)
 
 def compute_label_distribution_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile):
     """
@@ -1076,4 +1034,194 @@ def compute_label_distribution_statistics(extended_source_df, extended_target_df
         )
     
     return pd.DataFrame(results)
- 
+
+def compute_monte_carlo_from_context(context, data_prefix, interval_columns, B=350, random_state=1097):
+    """
+    Inputs:
+        context: dict - DTW context containing source data, selected intervals and selected interval ids
+        data_prefix: string - prefix identifying the data type to use, either "X" or "Y"
+        interval_columns: list - columns to use from randomly selected source intervals
+        B: int - number of Monte Carlo repetitions
+        random_state: int - seed used for reproducible random sampling
+
+    Outputs:
+        pd.DataFrame: summary of the Monte Carlo experiment results per metric
+    """
+    all_data = context[f"{data_prefix}_all"].dropna()
+    dtw_data = context[f"{data_prefix}_dtw"].dropna()
+    local_data = context[f"{data_prefix}_local"].dropna()
+    oos_data = context[f"{data_prefix}_oos"].dropna()
+
+    gamma = compute_rbf_bandwidth(local_data, all_data)
+
+    all_mean = mean_discrepancy(all_data, oos_data)
+    all_cov = covariance_discrepancy(all_data, oos_data)
+    all_mmd = mmd(all_data, oos_data, gamma)
+
+    dtw_mean = mean_discrepancy(dtw_data, oos_data)
+    dtw_cov = covariance_discrepancy(dtw_data, oos_data)
+    dtw_mmd = mmd(dtw_data, oos_data, gamma)
+
+    dtw_relative = {
+        "mean": dtw_mean / all_mean,
+        "covariance": dtw_cov / all_cov,
+        "mmd": dtw_mmd / all_mmd,
+    }
+
+    all_intervals = context["all_intervals"]
+    selected_ids = context["selected_ids"]
+
+    K = len(selected_ids)
+    all_interval_ids = list(all_intervals.keys())
+
+    rng = np.random.default_rng(random_state)
+    metrics = []
+
+    for _ in range(B):
+        random_ids = rng.choice(all_interval_ids, size=K, replace=False)
+
+        random_data = pd.concat([all_intervals[_id][interval_columns] for _id in random_ids], ignore_index=True).dropna()
+
+        metrics.append(
+            {
+                "mean": mean_discrepancy(random_data, oos_data) / all_mean,
+                "covariance": covariance_discrepancy(random_data, oos_data) / all_cov,
+                "mmd": mmd(random_data, oos_data, gamma) / all_mmd
+            }
+        )
+
+    metrics = pd.DataFrame(metrics)
+    summary = []
+
+    for metric in ["mean", "covariance", "mmd"]:
+        summary.append(
+            {
+                "symbol": context["symbol"],
+                "metric": metric,
+                "dtw_relative": dtw_relative[metric],
+                "random_mean": metrics[metric].mean(),
+                "random_p05": metrics[metric].quantile(0.05),
+                "random_p95": metrics[metric].quantile(0.95),
+                "random_le_dtw_pct": (metrics[metric] <= dtw_relative[metric]).mean(),
+                "n_intervals": K,
+                "n_repetitions": B,
+            }
+        )
+
+    return pd.DataFrame(summary)
+
+def compute_label_monte_carlo(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile):
+    """
+    Inputs:
+        extended_source_df: pd.DataFrame - dataframe of all source data
+        extended_target_df: pd.DataFrame - dataframe of all target data
+        session_dates: pd.DataFrame - dates of all trading sessions
+        symbol: string - name of the target asset
+        dtw_features: list - features used to compute DTW distances
+        m: int - length of a single DTW interval
+        percentile: int - percentile of the closest DTW intervals
+    Outputs:
+        pd.DataFrame: summary of the monte carlo experiment results per asset and metric
+    """
+    context = get_dtw_context(
+        extended_source_df,
+        extended_target_df,
+        session_dates,
+        symbol,
+        dtw_features,
+        m,
+        percentile,
+    )
+
+    return compute_monte_carlo_from_context(context=context, data_prefix="Y", interval_columns=["rv_next"])
+
+def get_dtw_source_only_training_data(all_intervals, selected_ids, extended):
+    """
+    Inputs:
+
+    Outputs:
+    """
+    # concat the selected source data
+    df = pd.concat([all_intervals[_id] for _id in selected_ids], ignore_index=True).drop(columns=["symbol"]).dropna()
+
+    # drop columns if not needed
+    if not extended:
+        df = df.drop(columns=["vix", "us3m", "MOM", "DVC", "hsi_sqr"], errors="ignore")
+
+    # add constant
+    df = sm.add_constant(df)
+
+    return df.drop(columns=["rv_next"]), df["rv_next"]
+
+def fit_conditional_shift_models(context, extended_source_df, extended_target_df, session_dates, initial_nt=100):
+    """
+    Inputs:
+
+    Outputs:
+    """
+    # first get all training data
+    X_all, y_all = get_source_only_training_data(context["first_forecast_date"], session_dates, extended_source_df, context["extended"])
+
+    X_dtw, y_dtw = get_dtw_source_only_training_data(context["all_intervals"], context["selected_ids"], context["extended"])
+
+    start_idx = context["first_test_idx"] - initial_nt
+    X_target, y_target = get_target_only_training_data(context["symbol"], initial_nt, extended_target_df, context["extended"], start_idx)
+
+    # train all models
+    models = {
+        "All": fit_har_model(X_all, y_all),
+        "DTW": fit_har_model(X_dtw, y_dtw),
+        "Target": fit_har_model(X_target, y_target)
+    }
+
+    return models
+
+def compute_conditional_mean_discrepancies(models, X_eval, session_dates, eval_dates):
+    """
+    Inputs:
+
+    Outputs:
+    """
+    predictions = {}
+
+    predictions["All"] = predict_har_model(models["All"], X_eval, eval_dates, session_dates)
+    predictions["DTW"] = predict_har_model(models["DTW"], X_eval, eval_dates, session_dates)
+    predictions["Target"] = predict_har_model(models["Target"], X_eval, eval_dates, session_dates)
+
+    D_all = np.sqrt(np.mean((predictions["All"] - predictions["Target"])**2))
+    D_dtw = np.sqrt(np.mean((predictions["DTW"] - predictions["Target"])**2))
+    relative_D = D_dtw / D_all
+
+    return D_all, D_dtw, relative_D
+
+def har_feature_columns(extended):
+    columns = ["rv_t", "rv_w", "rv_m"]
+    if extended:
+        columns += ["hsi_sqr", "vix", "us3m", "MOM", "DVC"]
+    return columns
+
+def compute_conditional_shift_statistics(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended, initial_nt=100):
+    # get the data needed 
+    context = get_dtw_context(extended_source_df, extended_target_df, session_dates, symbol, dtw_features, m, percentile, extended)
+
+    # train models
+    models = fit_conditional_shift_models(context, extended_source_df, extended_target_df, session_dates, initial_nt)
+
+    # evaluation observations 
+    X_eval = context["oos_raw"][har_feature_columns(extended)].dropna()
+    eval_dates = context["oos_raw"].loc[X_eval.index, "t"]
+
+    # compute discrepancies
+    D_all, D_dtw, relative_D = compute_conditional_mean_discrepancies(models, X_eval, session_dates, eval_dates)
+
+    return pd.DataFrame([
+        {
+            "symbol": symbol,
+            "features": "EXT" if extended else "STD",
+            "percentile": percentile,
+            "initial_nt": initial_nt,
+            "D_all_target": D_all,
+            "D_dtw_target": D_dtw,
+            "relative_discrepancy": relative_D,
+        }
+    ])
