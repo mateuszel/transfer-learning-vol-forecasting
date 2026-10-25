@@ -146,7 +146,7 @@ def get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, ex
 
     return X_train, y_train
 
-def fit_har_model(X_train, y_train):
+def fit_har_model(X_train, y_train, weights=None):
     """
     Inputs:
         X_train: pd.DataFrame - training dataset, with constant column. output of get_target_only_training_data(),
@@ -155,8 +155,10 @@ def fit_har_model(X_train, y_train):
     Outputs:
         RegressionResultsWrapper - fitted OLS model using statsmodels.api
     """
-
-    return sm.OLS(y_train, X_train).fit()
+    if weights is None:
+        return sm.OLS(y_train, X_train).fit()
+    else:
+        return sm.WLS(y_train, X_train, weights=weights).fit()
 
 def predict_har_model(model, X_test, test_dates, session_dates):
     """
@@ -178,7 +180,7 @@ def predict_har_model(model, X_test, test_dates, session_dates):
 
     return pd.Series(predictions.to_numpy(), index=pd.DatetimeIndex(next_dates), name="rv_pred")
 
-def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5, test_size=50, m=22, dtw_features=["rv_t", "rv_w", "rv_m"], percentile=25):
+def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, extended_target_df, extended, initial_nt=40, refit_freq=5, test_size=50, m=22, dtw_features=["rv_t", "rv_w", "rv_m"], percentile=25, kappa=0):
     """
     Inputs:
         mode: string - "target_only" or "source_only" or "naive_pooling" 
@@ -192,6 +194,7 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
         refit_freq: int - tells us how often we refit the model to include new data, 
         m: int - interval size for DTW if needed
         percentile: int - percentile of the closest DTW observations to add to training set
+        kappa: float - strength of DTW distance weighting
     Outputs:
         pd.DataFrame - contains prediction and diagnostics data, exact columns should be studied below
     """
@@ -209,6 +212,8 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
     refit_id = 0 # used to track when we are using which model over time 
 
     for forecast_step, current_date in enumerate(target_dates[first_test_idx:]):
+        _ress = np.nan
+
         # we make forecast for this date
         forecast_date = get_next_session_date(current_date, session_dates)
 
@@ -226,17 +231,28 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
                 X_train, y_train = get_source_only_training_data(forecast_date, session_dates, extended_source_df, extended)
             elif mode == "naive_pooling":
                 X_train, y_train = get_naive_pooling_training_data(symbol, forecast_date, session_dates, nt, extended_source_df, extended_target_df, extended, start_idx)
-            elif mode == "dtw":
+            elif mode in ["dtw", "weighted_dtw"]:
                 dtw_target = get_target_for_dtw(target, first_test_idx+forecast_step, dtw_features, m)
                 dtw_source = get_source_for_dtw(forecast_date, session_dates, extended_source_df)
 
                 target_interval, og_intervals, dtw_intervals = construct_intervals(dtw_target, dtw_source, extended, dtw_features, m)
-                selected_ids = compute_dtw(target_interval, dtw_intervals, percentile)
 
-                X_train, y_train = get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids)
+                if mode == "weighted_dtw":
+                    selected_ids, distances = compute_dtw(target_interval, dtw_intervals, percentile, True)
+                    interval_weights = compute_dtw_interval_weights(distances, selected_ids, kappa)
+                    _weights = np.array(list(interval_weights.values()))
+                    _ess = (_weights.sum() ** 2) / np.sum(_weights ** 2)
+                    _ress = _ess / len(_weights)
+                    X_train, y_train, weights = get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids, interval_weights)
+                else:
+                    selected_ids = compute_dtw(target_interval, dtw_intervals, percentile)
+                    X_train, y_train = get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids)
 
             # refit
-            model = fit_har_model(X_train, y_train)
+            if mode == "weighted_dtw":
+                model = fit_har_model(X_train, y_train, weights)
+            else:
+                model = fit_har_model(X_train, y_train)
             # both below mostly just for diagnostics
             refit_id += 1
             n_train = len(y_train)
@@ -262,7 +278,8 @@ def run_rolling_predictions(mode, symbol, session_dates, extended_source_df, ext
             "initial_nt": initial_nt,
             "refit_id": refit_id,
             "n_train": n_train,
-            "clipped": y_pred.iloc[0] < 1e-8
+            "clipped": y_pred.iloc[0] < 1e-8,
+            "rESS": _ress
         })
 
     return pd.DataFrame(predictions)
@@ -626,7 +643,7 @@ def construct_intervals(dtw_target, dtw_source, extended, dtw_features, m):
 
     return target_interval, og_intervals, dtw_intervals
 
-def compute_dtw(target_interval, dtw_intervals, percentile):
+def compute_dtw(target_interval, dtw_intervals, percentile, return_distances=False):
     """
     Inputs:
         target_interval: pd.DataFrame - pd.DataFrame - target interval ready for DTW with only the dtw_features columns, output of construct_intervals(...)
@@ -643,9 +660,35 @@ def compute_dtw(target_interval, dtw_intervals, percentile):
     # find the threshold corresponding to the percentile
     threshold = np.percentile(list(distances.values()), percentile)
 
-    return [window_id for window_id, distance in distances.items() if distance <= threshold]
+    selected_ids = [window_id for window_id, distance in distances.items() if distance <= threshold]
 
-def get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids):
+    if return_distances:
+        return selected_ids, distances
+    return selected_ids
+
+def compute_dtw_interval_weights(distances, selected_ids, kappa):
+    """
+    Inputs:
+        distances: dict - DTW distances for all source intervals
+        selected_ids: list - ids of intervals selected by DTW
+        kappa: float - strength of distance penalization
+    Outputs:
+        dict - normalized weight for every selected interval
+    """
+    selected_distances = np.array([distances[_id] for _id in selected_ids])
+    min_d = np.min(selected_distances)
+    max_d = np.max(selected_distances)
+
+    if min_d == max_d:
+        return {_id: 1.0 for _id in selected_ids}
+
+    z = (selected_distances - min_d) / (max_d - min_d)
+    u = np.exp(-kappa*z)
+    weights = len(selected_ids) * u / u.sum()
+
+    return dict(zip(selected_ids, weights))
+
+def get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, og_intervals, selected_ids, interval_weights=None):
     """
     Inputs:
         symbol, nt, extended_target_df, extended, start_idx - same inputs as for get_target_only_training_data(...)
@@ -667,8 +710,15 @@ def get_dtw_training_data(symbol, nt, extended_target_df, extended, start_idx, o
     # split into X and y
     X_train = pd.concat([source_df.drop(columns=["rv_next"]), X_target]).reset_index(drop=True)
     y_train = pd.concat([source_df["rv_next"], y_target]).reset_index(drop=True)
-    
-    return X_train, y_train
+
+    if interval_weights is None:
+        return X_train, y_train
+
+    source_weights = pd.concat([pd.Series([interval_weights[window_id]] * len(og_intervals[window_id])) for window_id in selected_ids], ignore_index=True)
+    target_weights = pd.Series(1.0, index=range(len(y_target)))
+    weights = pd.concat([source_weights, target_weights], ignore_index=True)
+
+    return X_train, y_train, weights
 
 def run_benchmark_grid(session_dates, extended_source_df, extended_target_df, nt_grid=(40, 60, 80, 100, 120), symbols=("CHWY", "CRWD"), refit_freq=5, test_size=50):
     """
@@ -1341,3 +1391,4 @@ def compute_reverse_conditional_shift_statistics(extended_source_df, extended_ta
     models = {"All": fit_reverse_conditional_models(X_all, Y_all, feature_columns), "DTW": fit_reverse_conditional_models(X_dtw, Y_dtw, feature_columns), "Target": fit_reverse_conditional_models(X_target, Y_target, feature_columns)}
     D_all, D_dtw, relative_D = compute_reverse_conditional_discrepancies(models, context["Y_oos"], feature_columns)
     return pd.DataFrame([{"symbol": symbol, "features": "STD", "percentile": percentile, "initial_nt": initial_nt, "D_all_target": D_all, "D_dtw_target": D_dtw, "relative_discrepancy": relative_D}])
+

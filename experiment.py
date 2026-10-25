@@ -1557,5 +1557,197 @@ def _(
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Results show that in general DTW-based source selection doesn't have to reduce the reverse conditional distribution discrepancy, at least in the way that was measured in this experiment. For CRWD we don't see any improvement, but for CHWY we can see that DTW-based selection reduced the discrepancy slightly, although this result should be validated using approach similar to the one presented in earlier sections.
+
+    Together with the predictive conditional mean results, these findings suggest that DTW's substantial improvements in marginal distribution alignment don't translate into consistent improvements in the estimated conditional mean relationship.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## **6. DTW-Distance-Weighted-HAR**
+
+    Previous experiments showed that DTW-based source selection improves forecasting performance relative to naive pooling, although the magnitude of the improvement varies with the selection threshold. The current approach relies on hard selection: source windows are either included or discarded according to their DTW distance, while all selected windows contribute equally to model estimation.
+
+    This raises a natural methodological question: is binary selection sufficient, or can the information contained in DTW distances be used more effectively? In particular, two selected source windows may differ substantially in similarity to the target while receiving identical regression weights.
+
+    We therefore investigate a distance-weighted extension of DTW-HAR. To isolate the effect of weighting, we retain the same selected source windows and target observations, but allow the contribution of each source window to depend continuously on its DTW distance.
+
+    We first evaluate whether this modification improves out-of-sample forecasting performance.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **6.1 Setup of the weighting experiment**
+
+    First, we will introduce the new model that weighs the obsvervations according to their DTW distances.
+
+    Let $\mathcal J$ be the set of all source intervals selected by the DTW distance and denote $K=|\mathcal J|$. For $j\in\mathcal J$ we define:
+    \[
+        z_j = \frac{d_j-d_{min}}{d_{max}-d_{min}},
+    \]
+    where $d_j$ is the DTW distance of $j$-th interval and $d_{min}, d_{max}$ are respectively the smallest and the largest DTW distances among the selected intervals. Then $z_j\in[0,1]$ measures how big is the DTW distance of the $j$-th selected interval relative to the biggest distance achieved. This way, bigger $z_j$ corresponds to less similar source intervals and the normalization makes the distances comparable across different target assets.
+
+    Then, an unnormalized weight is assigned to each interval:
+    \[
+    u_j(\kappa) = \exp(-\kappa z_j),
+    \]
+    where $\kappa$ controls how strong we penalize large DTW distances. In particular, with $\kappa=0$ all intervals get equal weights.
+
+    Lastly, we normalize the weights:
+    \[
+        w_j(\kappa) = \frac{Ku_j(\kappa)}{\sum_{h\in\mathcal J}u_h(\kappa)}.
+    \]
+    This ensures that
+    \[
+        \sum_{j\in\mathcal J} w_j(\kappa) = K,
+    \]
+    so average weight of a selected interval remains equal to one. Then the sum of all selected source weights is equal to $22K$, as in the original DTW model. Thus, this normalization preserves total source weight relative to the target observations.
+
+    Having prepared the weights for the intervals we can define our new $\beta$ estimator as:
+    \[
+        \hat\beta(\kappa) = \arg \min_\beta \left\{\sum_{i\in T} (Y_i - x_i^\top\beta)^2 + \sum_{j\in\mathcal J}w_j(\kappa)\sum_{i\in S_{j}}(Y_i-x_i^\top\beta)^2\right\}.
+    \]
+
+    Now we will briefly describe the training and evaluation methodology, although it is very similar to the one used in sections 3.1 and 4.
+
+    We will test this method on both previously discussed target assets using both standard and extended HAR features. The forecasting performance will once again be measured using QLIKE and MSE metrics on a 50 trading-day out-of-sample window with model parameters reestimated every 5 trading sessions. The number of initially available target observations for training will be set at $n_T=100$. When it comes to selecting intervals with smallest DTW distance, we will only use the 25th percentile. To see how the forecasting performance depends on the strength of weighting we will compare $\kappa\in\{0,1,2,3\}$.
+
+    So in the end we want to compare the perfornamce of Target Only, Naive Pooling, Hard DTW-25 and Weighted DTW-25 models. Notice that Hard DTW-25 is equivalent to having $\kappa=0$.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **6.2 Results**
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    benchmark_grid,
+    compute_prediction_metrics,
+    extended_source_df,
+    extended_target_df,
+    pd,
+    run_rolling_predictions,
+    trading_sessions,
+):
+    _model_configs = [("Hard DTW-25", "dtw", None)] + [(f"Weighted DTW-25 (k={_kappa})", "weighted_dtw", _kappa) for _kappa in [0, 1, 2, 3]]
+    _dtw_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        for _extended, _features in [(False, "STD"), (True, "EXT")]:
+            for _method, _mode, _kappa in _model_configs:
+                _predictions = run_rolling_predictions(mode=_mode, symbol=_symbol, session_dates=trading_sessions, extended_source_df=extended_source_df, extended_target_df=extended_target_df, extended=_extended, initial_nt=100, refit_freq=5, test_size=50, m=22, dtw_features=["rv_t", "rv_w", "rv_m"], percentile=25, kappa=_kappa or 0)
+                _overall_metrics, _daily_metrics = compute_prediction_metrics(_predictions)
+                _row = _overall_metrics.iloc[0]
+                _dtw_results.append({"symbol": _symbol, "features": _features, "method": _method, "kappa": _kappa, "mse": _row["mse"], "qlike": _row["qlike"]})
+
+    _dtw_results = pd.DataFrame(_dtw_results)
+    _baselines = benchmark_grid[(benchmark_grid["nT"] == 100) & (benchmark_grid["method"].isin(["Target Only", "Naive Pooling"]))][["symbol", "features", "method", "mse", "qlike"]].copy()
+    _baselines["kappa"] = None
+    weighted_har_results = pd.concat([_baselines, _dtw_results], ignore_index=True)
+    _target_metrics = weighted_har_results[weighted_har_results["method"] == "Target Only"][["symbol", "features", "mse", "qlike"]].rename(columns={"mse": "target_mse", "qlike": "target_qlike"})
+    weighted_har_results = weighted_har_results.merge(_target_metrics, on=["symbol", "features"], how="left")
+    weighted_har_results["relative_mse"] = weighted_har_results["mse"] / weighted_har_results["target_mse"]
+    weighted_har_results["relative_qlike"] = weighted_har_results["qlike"] / weighted_har_results["target_qlike"]
+    return (weighted_har_results,)
+
+
+@app.cell(hide_code=True, expand_output=True)
+def _(mo, weighted_har_results):
+    _method_order = ["Naive Pooling", "Hard DTW-25", "Weighted DTW-25 (k=1)", "Weighted DTW-25 (k=2)", "Weighted DTW-25 (k=3)"]
+    _method_labels = {"Naive Pooling": "Naive Pooling", "Hard DTW-25": "Hard DTW-25", "Weighted DTW-25 (k=1)": "Weighted DTW-25 (k=1)", "Weighted DTW-25 (k=2)": "Weighted DTW-25 (k=2)", "Weighted DTW-25 (k=3)": "Weighted DTW-25 (k=3)"}
+
+
+    def _make_performance_table(_features, _metric):
+        _data = weighted_har_results[(weighted_har_results["features"] == _features) & (weighted_har_results["method"] != "Weighted DTW-25 (k=0)") & (weighted_har_results["method"] != "Target Only")]
+        _data = _data.pivot(index="symbol", columns="method", values=_metric).reset_index()
+        _data = _data[["symbol"] + _method_order]
+        _data = _data.rename(columns=_method_labels)
+        return _data.reset_index(drop=True)
+
+    _std_mse = _make_performance_table("STD", "relative_mse")
+    _std_qlike = _make_performance_table("STD", "relative_qlike")
+    _ext_mse = _make_performance_table("EXT", "relative_mse")
+    _ext_qlike = _make_performance_table("EXT", "relative_qlike")
+
+    mo.vstack([mo.md("#### **Table 11a - STD HAR relative MSE (Target Only = 1)**"), mo.ui.table(_std_mse, selection=None), mo.md("#### **Table 11b - STD HAR relative QLIKE (Target Only = 1)**"), mo.ui.table(_std_qlike, selection=None), mo.md("#### **Table 11c - EXT HAR relative MSE (Target Only = 1)**"), mo.ui.table(_ext_mse, selection=None), mo.md("#### **Table 11d - EXT HAR relative QLIKE (Target Only = 1)**"), mo.ui.table(_ext_qlike, selection=None)])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The results show that introducing weights into the distance-based model doesn't consistently improve the forecasting performance of the model compared to the original Hard HAR-25 approach. Although in most cases the differences aren't big and might not be significant we can see that as $\kappa$ is bigger the QLIKE is generally bigger as well. This suggests that assiging larger weights to the most similar source intervals may not be beneficial.
+
+    A possible explanation for this phenomenon could be that selecting the closest source intervals using DTW already gives us a sufficiently similar training sample and further concentrating these weights on only a few of the samples may lead to reducing the diversity of the training sample, without improving the forecasting performance.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### **6.3 Effective sample size**
+    To investigate the above we will now examine the effective sample size of the selected source intervals. This metric measures the concentration of assigned weights and allows us to check how strongly does the weighting focus on just a couple of observations.
+
+    For a given $\kappa$ the effective sample size is defined as:
+    \[
+        ESS(\kappa) = \frac{(\sum_{j\in\mathcal J} w_j(\kappa))^2}{\sum_{j\in\mathcal J}w_j^2(\kappa)}.
+    \]
+    If all intervals have equal weights $ESS=K$. As the weights become more concentrated on the closest intervals the $ESS$ decreases. In order to make it possible to compare values of $ESS$ for different $K$'s we will use the relative $ESS$ defined as $rESS(\kappa) = \frac{ESS(\kappa)}{k}$.
+
+    So now, whenever we are refitting the our model we will compute the $rESS$ and then for every value of $\kappa$ and every target asset we will report the average of the previously computed values.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    extended_source_df,
+    extended_target_df,
+    mo,
+    pd,
+    run_rolling_predictions,
+    trading_sessions,
+):
+    _ress_results = []
+
+    for _symbol in ["CHWY", "CRWD"]:
+        for _kappa in [0, 1, 2, 3]:
+            _predictions = run_rolling_predictions(mode="weighted_dtw", symbol=_symbol, session_dates=trading_sessions, extended_source_df=extended_source_df, extended_target_df=extended_target_df, extended=False, initial_nt=100, refit_freq=5, test_size=50, m=22, dtw_features=["rv_t", "rv_w", "rv_m"], percentile=25, kappa=_kappa)
+            _ress_results.append({"asset": _symbol, "kappa": _kappa, "mean_rESS": _predictions["rESS"].dropna().mean()})
+
+    ress_results = pd.DataFrame(_ress_results)
+    _ress_matrix = ress_results.pivot(index="asset", columns="kappa", values="mean_rESS").reset_index()
+    _ress_matrix.columns = ["asset"] + [f"kappa={_kappa}" for _kappa in _ress_matrix.columns[1:]]
+    _ress_matrix = _ress_matrix.reset_index(drop=True)
+
+    mo.vstack([mo.md("#### **Table 12 - Mean relative effective sample size**"), mo.ui.table(_ress_matrix, selection=None)])
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The results show that increasing $\kappa$ leads to a substantial reduction in relative ESS, especially for $\kappa=3$, where it falls below 0.5 for both target assets. This indicates that the weighting scheme concentrates a large share of the total source weight on a relatively small subset of selected intervals. Together with the previously observed deterioration in QLIKE, these findings are consistent with the hypothesis that excessive concentration of source weights may reduce the benefits of using a broader set of DTW-selected intervals. However, even for $\kappa=1$, where relative ESS remains close to 1, we do not observe consistent improvements in forecasting accuracy.
+    """)
+    return
+
+
 if __name__ == "__main__":
     app.run()
