@@ -7,7 +7,19 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # **Experiment**
+    # **Forecasting volatility for new issues**
+
+    The main objective of this experiment is to investigate whether historical volatility information from mature assets can improve forecasting for newly listed assets, and whether similarity-based source selection can reduce the risks associated with indiscriminate transfer.
+
+    The main challenge in forecasting the volatility of a newly listed stock is the limited availability of historical data. A model trained only on observations from this asset, referred to as target data, may not produce reliable forecasts because of the small sample size. This motivates the idea of transferring information from other, more mature stocks. We expect some source assets to share relevant characteristics with the target asset, making their historical observations potentially useful for model training. However, blindly including source data also involves risks, as the past behavior of mature stocks may differ substantially from that of the target stock and negatively affect forecasting performance.
+
+    This raises the question of whether source data should be transferred indiscriminately or whether the transfer process should take into account the similarity between source and target. In particular, the use of irrelevant source observations may lead to negative transfer, meaning that incorporating additional data results in worse forecasting performance than using target data alone. To investigate this issue, we consider several approaches to incorporating source information. These include training models only on target data, using source data without target observations, and pooling source and target data together. These benchmark methods allow us to assess both the potential benefits of transfer learning and the risk of negative transfer.
+
+    We then consider a similarity-based approach based on Dynamic Time Warping (DTW). DTW is used to compare volatility patterns over time and identify source intervals that are more similar to the recent history of the target asset. Instead of using all available source observations, the DTW-based methods select only a subset of source intervals with the smallest distances to the target. This allows us to examine whether more selective transfer can improve forecasting performance and reduce distributional differences between source and target data.
+
+    To evaluate these approaches, we use two different HAR models: a standard version and an extended version incorporating additional financial variables. The methods are evaluated on two newly listed stocks using rolling out-of-sample forecasts, with QLIKE and MSE used as performance metrics. An additional motivation for this analysis was to assess whether our setting is suitable for applying existing domain adaptation methods. We examine not only forecasting performance, but also the structure of the distribution shift between source and target assets. In particular, we compare marginal covariate distributions, marginal label distributions, and conditional relationships between covariates and labels. The results are mixed: DTW improves marginal distribution alignment, but does not consistently reduce conditional discrepancies. This suggests that marginal similarity alone may not be enough to justify applying some domain adaptation methods in this setting.
+
+    The experiment is organized as follows. Section 1 introduces the HAR models used in the analysis and Section 2 describes the data and preprocessing procedure. Section 3 presents the benchmark forecasting methods. Section 4 introduces the DTW-based transfer approach. Section 5 examines the distributional changes, and Section 6 evaluates a distance-weighted extension of the DTW-HAR model.
     """)
     return
 
@@ -1737,7 +1749,6 @@ def _(
     _ress_matrix = _ress_matrix.reset_index(drop=True)
 
     mo.vstack([mo.md("#### **Table 12 - Mean relative effective sample size**"), mo.ui.table(_ress_matrix, selection=None)])
-
     return
 
 
@@ -1745,6 +1756,20 @@ def _(
 def _(mo):
     mo.md(r"""
     The results show that increasing $\kappa$ leads to a substantial reduction in relative ESS, especially for $\kappa=3$, where it falls below 0.5 for both target assets. This indicates that the weighting scheme concentrates a large share of the total source weight on a relatively small subset of selected intervals. Together with the previously observed deterioration in QLIKE, these findings are consistent with the hypothesis that excessive concentration of source weights may reduce the benefits of using a broader set of DTW-selected intervals. However, even for $\kappa=1$, where relative ESS remains close to 1, we do not observe consistent improvements in forecasting accuracy.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## **7. Summary**
+
+    Overall, the results show that using source data can improve volatility forecasts for newly listed assets, although the benefits depend on the asset, feature set, and evaluation metric. For $n_T=100$, Naive Pooling reduced relative MSE to 0.90 for CHWY and 0.61 for CRWD under the standard HAR model. However, some cases still showed negative transfer, especially in terms of QLIKE.
+
+    DTW-based selection generally performed slightly better than indiscriminate pooling. It also improved the alignment of marginal covariate and label distributions. For example, for the out-of-sample target period, the MMD was reduced from 0.644 to 0.529 for CHWY and from 0.551 to 0.478 for CRWD. However, DTW did not consistently reduce predictive conditional discrepancies, which remained above one in all considered cases. These results should be interpreted cautiously, since the conditional relationships are estimated using limited target samples and linear HAR approximations. Consequently, the observed discrepancies may partly reflect estimation error or model misspecification rather than genuine differences in the underlying conditional distributions.
+
+    The distance-weighted extension did not consistently improve upon hard DTW selection. Increasing the weighting parameter often increased QLIKE and reduced the relative effective sample size to approximately 0.45--0.47 for $\kappa=3$, indicating that the model placed too much weight on a small number of source intervals. Overall, DTW-based selection appears more useful than indiscriminate pooling, but better marginal similarity does not necessarily lead to better predictive relationships. These conclusions are also limited by the small number of target assets, the restricted time period, and the use of linear HAR models.
     """)
     return
 
