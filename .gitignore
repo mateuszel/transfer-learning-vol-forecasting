@@ -1,6 +1,7 @@
 .venv/
-__pycache__/
+__pycache__
 .pytest_cache/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
+__marimo__

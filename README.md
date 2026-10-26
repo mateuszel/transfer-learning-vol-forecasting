@@ -14,12 +14,18 @@ The recommended order is:
 2. Open the experiment notebook for the forecasting results, DTW analysis, distribution-shift diagnostics, and final conclusions.
 3. Use the GitHub source files when you want to inspect or reproduce the underlying code.
 
-Depending on the hosting option, the notebook may be a static snapshot of the latest run or a runnable marimo notebook. A static version is intended for reading and does not execute Python code. The complete source code remains available in this repository.
+The links below are static exports of the notebooks. They do not execute the
+Python code, but they allow you to read the explanations and inspect the
+computed tables, plots, and conclusions without installing the project. Some
+interactive features, such as dropdowns, may not work in the static version.
 
-The links below are placeholders for the hosted versions:
+**Main experiment:**
 
-[![Open experiment notebook](https://img.shields.io/badge/Open-experiment%20notebook-blue)](EXPERIMENT_NOTEBOOK_URL)
-[![Open data preprocessing notebook](https://img.shields.io/badge/Open-data%20preprocessing%20notebook-green)](DATA_PREPROCESSING_NOTEBOOK_URL)
+[![Open static experiment notebook in molab](https://molab.marimo.io/molab-shield.svg)](https://molab.marimo.io/artifacts/art_tR4r4o4eYPds1oxNLTHqGt)
+
+**Data preprocessing:**
+
+[![Open static data preprocessing notebook in molab](https://molab.marimo.io/molab-shield.svg)](https://molab.marimo.io/artifacts/art_jPgjaZWe6fDJw6YZv8Tr3P)
 
 ## Main experiments
 
@@ -111,7 +117,7 @@ marimo edit experiment.py
 marimo edit data_preprocessing.py
 ```
 
-The experiment reads the processed dataset and runs the forecasting and distribution-shift analyses. Some rolling-forecast and Monte Carlo cells may take several minutes to complete.
+The experiment reads the processed dataset and runs the forecasting and distribution-shift analyses. On a typical local machine, preprocessing takes approximately 2 minutes, while the full experiment takes just under 10 minutes. Some rolling-forecast and Monte Carlo cells account for most of this runtime.
 
 The preprocessing notebook can be used to rebuild the processed dataset. Its final cell writes to `data/processed/har_extended_dataset.parquet`, so it only needs to be rerun when the dataset is being rebuilt.
 
